@@ -5,17 +5,21 @@ import { TranslationsModule } from './translations/translations.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Translation } from './translations/entities/translation.entity';
 import { DataSource } from 'typeorm';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
     TranslationsModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: 'Maxownsu2!',
-      database: 'translations',
+      type: (process.env.DB_TYPE as any) || 'mysql',
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT, 10) || 3306,
+      username: process.env.DB_USERNAME || 'root',
+      password: process.env.DB_PASSWORD || 'YourDatabasePassword',
+      database: process.env.DB_DATABASE || 'translations',
       entities: [Translation],
       synchronize: true,
       autoLoadEntities: true,
@@ -25,5 +29,5 @@ import { DataSource } from 'typeorm';
   providers: [AppService],
 })
 export class AppModule {
-  constructor(private dataSource: DataSource) {} // not sure about this line
+  constructor(private dataSource: DataSource) {}
 }
