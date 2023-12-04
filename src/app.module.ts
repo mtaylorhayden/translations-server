@@ -6,6 +6,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Translation } from './translations/entities/translation.entity';
 import { DataSource } from 'typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { GuidesModule } from './guides/guides.module';
+import { GuidesModule } from './guides/guides.module';
+import { GuidesService } from './guides/guides.service';
+import { GuidesModule } from './guides/guides.module';
 
 @Module({
   imports: [
@@ -24,9 +28,10 @@ import { ConfigModule } from '@nestjs/config';
       synchronize: true,
       autoLoadEntities: true,
     }),
+    GuidesModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, GuidesService],
 })
 export class AppModule {
   constructor(private dataSource: DataSource) {}
