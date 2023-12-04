@@ -3,6 +3,7 @@ import { UpdateTranslationDto } from './dto/update-translation.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Translation } from './entities/translation.entity';
 import { Repository } from 'typeorm';
+import { GetTranslationDto } from './dto/get-translation.dto';
 
 @Injectable()
 export class TranslationsService {
@@ -45,9 +46,15 @@ export class TranslationsService {
     }
   }
 
-  findAll() {
+  async findAll(): Promise<GetTranslationDto[]> {
     try {
-      return this.translationRepository.find();
+      const translations = await this.translationRepository.find();
+
+      return translations.map((translation) => ({
+        id: translation.id,
+        englishTranslation: translation.englishTranslation,
+        turkishTranslation: translation.turkishTranslation,
+      }));
     } catch (error) {
       throw new HttpException(
         'Error finding translations in the database',

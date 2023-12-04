@@ -10,6 +10,7 @@ import {
 import { TranslationsService } from './translations.service';
 import { CreateTranslationDto } from './dto/create-translation.dto';
 import { UpdateTranslationDto } from './dto/update-translation.dto';
+import { GetTranslationDto } from './dto/get-translation.dto';
 
 @Controller('translations')
 export class TranslationsController {
@@ -23,7 +24,7 @@ export class TranslationsController {
   }
 
   @Get()
-  findAll() {
+  findAll(): Promise<GetTranslationDto[]> {
     return this.translationsService.findAll();
   }
 
