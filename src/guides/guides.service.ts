@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { GetGuideDto } from './dto/get-guide.dto';
 import { Translation } from 'src/translations/entities/translation.entity';
+import { Sentence } from 'src/sentences/entities/sentence.entity';
 
 @Injectable()
 export class GuidesService {
@@ -14,20 +15,33 @@ export class GuidesService {
     private guideRepository: Repository<Guide>,
     @InjectRepository(Translation)
     private translationRepository: Repository<Translation>,
+    @InjectRepository(Sentence)
+    private sentenceRepository: Repository<Sentence>,
   ) {}
 
-  async createGuideWithTranslation(dto: CreateGuideDto, translationId: number) {
+  async createGuideWithTranslation(
+    dto: CreateGuideDto,
+    translationId: number,
+    sentenceId: number,
+  ) {
     // find the translation
-    const translation = await this.translationRepository.findOne({
+    const translation: Translation = await this.translationRepository.findOne({
       where: {
         id: translationId,
       },
     });
 
+    const sentence: Sentence = await this.sentenceRepository.findOne({
+      where: {
+        id: sentenceId,
+      },
+    });
+
     // if we found a translation then create a guide
-    if (translation) {
+    if (translation && sentence) {
       let guide: Guide = new Guide();
       guide.translations = [translation];
+      guide.sentences = [sentence];
       guide.title = dto.title;
       guide.description = dto.description;
       guide.examples = dto.examples;
