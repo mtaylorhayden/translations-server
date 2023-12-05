@@ -4,6 +4,7 @@ import { UpdateGuideDto } from './dto/update-guide.dto';
 import { Guide } from './entities/guide.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { GetGuideDto } from './dto/get-guide.dto';
 
 @Injectable()
 export class GuidesService {
@@ -25,8 +26,27 @@ export class GuidesService {
     }
   }
 
-  findAll() {
-    return `This action returns all guides`;
+  async findAll(): Promise<GetGuideDto[]> {
+    try {
+      const guides = await this.guideRepository.find();
+
+      if (guides.length) {
+        return guides.map((guide) => ({
+          id: guide.id,
+          title: guide.title,
+          description: guide.description,
+          examples: guide.examples,
+        }));
+      } else {
+        return [];
+      }
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(
+        'Error finding guides in the database',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   findOne(id: number) {
