@@ -18,8 +18,6 @@ export class GuidesController {
 
   @Post()
   create(@Body() createGuideDto: CreateGuideDto) {
-    console.log(createGuideDto);
-
     return 'not implemeneted';
   }
 

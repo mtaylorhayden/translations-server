@@ -24,7 +24,6 @@ export class GuidesService {
     translationId: number,
     sentenceId: number,
   ) {
-    // find the translation
     const translation: Translation = await this.translationRepository.findOne({
       where: {
         id: translationId,
@@ -64,19 +63,6 @@ export class GuidesService {
     }
   }
 
-  create(createGuideDto: CreateGuideDto) {
-    const guide = this.guideRepository.create(createGuideDto);
-
-    try {
-      return this.guideRepository.save(guide);
-    } catch (error) {
-      throw new HttpException(
-        'Error saving guide to the database',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
   async findAll(): Promise<GetGuideDto[]> {
     try {
       const guides = await this.guideRepository.find();
@@ -86,7 +72,10 @@ export class GuidesService {
           id: guide.id,
           title: guide.title,
           description: guide.description,
+          subDescription: guide?.subDescription,
           examples: guide.examples,
+          sentences: guide.sentences,
+          translations: guide.translations,
         }));
       } else {
         return [];
@@ -105,6 +94,7 @@ export class GuidesService {
       where: {
         id: id,
       },
+      relations: ['sentences', 'translations'],
     });
 
     if (guide) {
@@ -112,7 +102,10 @@ export class GuidesService {
         id,
         title: guide.title,
         description: guide.description,
+        subDescription: guide?.subDescription,
         examples: guide.examples,
+        sentences: guide.sentences,
+        translations: guide.translations,
       };
     }
 
@@ -120,6 +113,10 @@ export class GuidesService {
       `Could not find guide with id: ${id}`,
       HttpStatus.NOT_FOUND,
     );
+  }
+
+  create(createGuideDto: CreateGuideDto) {
+    return 'not implemented';
   }
 
   update(id: number, updateGuideDto: UpdateGuideDto) {
