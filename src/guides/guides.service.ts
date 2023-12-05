@@ -49,8 +49,26 @@ export class GuidesService {
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} guide`;
+  async findOne(id: number): Promise<GetGuideDto> {
+    const guide = await this.guideRepository.findOne({
+      where: {
+        id: id,
+      },
+    });
+
+    if (guide) {
+      return {
+        id,
+        title: guide.title,
+        description: guide.description,
+        examples: guide.examples,
+      };
+    }
+
+    throw new HttpException(
+      `Could not find guide with id: ${id}`,
+      HttpStatus.NOT_FOUND,
+    );
   }
 
   update(id: number, updateGuideDto: UpdateGuideDto) {
