@@ -20,7 +20,7 @@ export class Guide {
   @Column()
   description: string;
 
-  @Column()
+  @Column({ nullable: true })
   subDescription: string;
 
   @Column()

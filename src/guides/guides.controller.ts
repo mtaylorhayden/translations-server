@@ -20,7 +20,15 @@ export class GuidesController {
   create(@Body() createGuideDto: CreateGuideDto) {
     console.log(createGuideDto);
 
-    return this.guidesService.create(createGuideDto);
+    return 'not implemeneted';
+  }
+
+  @Post('/translation/:id')
+  createGuideWithTranslation(
+    @Param('id') translationId: string,
+    @Body() dto: CreateGuideDto,
+  ) {
+    return this.guidesService.createGuideWithTranslation(dto, +translationId);
   }
 
   @Get()
