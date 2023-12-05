@@ -6,10 +6,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Translation } from './translations/entities/translation.entity';
 import { DataSource } from 'typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { GuidesModule } from './guides/guides.module';
+import { GuidesService } from './guides/guides.service';
+import { Guide } from './guides/entities/guide.entity';
 
 @Module({
   imports: [
     TranslationsModule,
+    GuidesModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -20,7 +24,7 @@ import { ConfigModule } from '@nestjs/config';
       username: process.env.DB_USERNAME || 'root',
       password: process.env.DB_PASSWORD || 'YourDatabasePassword',
       database: process.env.DB_DATABASE || 'translations',
-      entities: [Translation],
+      entities: [Translation, Guide],
       synchronize: true,
       autoLoadEntities: true,
     }),
