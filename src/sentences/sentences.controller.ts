@@ -21,6 +21,14 @@ export class SentencesController {
     return this.sentencesService.create(createSentenceDto);
   }
 
+  @Post('/guide/:id')
+  addToGuide(
+    @Body() createSentenceDto: CreateSentenceDto,
+    @Param('id') id: string,
+  ) {
+    return this.sentencesService.addToGuide(createSentenceDto, +id);
+  }
+
   @Get()
   findAll(): Promise<Sentence[]> {
     return this.sentencesService.findAll();
