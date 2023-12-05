@@ -1,5 +1,6 @@
 export class GetTranslationDto {
   id: number;
-  englishTranslation: string;
-  turkishTranslation: string;
+  englishWord: string;
+  turkishInfinitive: string;
+  turkishConjugated: string;
 }

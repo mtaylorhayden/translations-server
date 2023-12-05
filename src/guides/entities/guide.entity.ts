@@ -1,7 +1,10 @@
+import { Sentence } from 'src/sentences/entities/sentence.entity';
+import { Translation } from 'src/translations/entities/translation.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -18,6 +21,9 @@ export class Guide {
   description: string;
 
   @Column()
+  subDescription: string;
+
+  @Column()
   examples: string;
 
   @Column({ default: false })
@@ -28,4 +34,10 @@ export class Guide {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @OneToMany(() => Translation, (translation) => translation.guide)
+  translations: Translation[];
+
+  @OneToMany(() => Sentence, (sentence) => sentence.guide)
+  sentences: Sentence[];
 }

@@ -9,11 +9,13 @@ import { ConfigModule } from '@nestjs/config';
 import { GuidesModule } from './guides/guides.module';
 import { GuidesService } from './guides/guides.service';
 import { Guide } from './guides/entities/guide.entity';
+import { SentencesModule } from './sentences/sentences.module';
 
 @Module({
   imports: [
     TranslationsModule,
     GuidesModule,
+    SentencesModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),

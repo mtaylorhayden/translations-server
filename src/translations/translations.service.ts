@@ -13,37 +13,34 @@ export class TranslationsService {
   ) {}
 
   create(translations: string) {
-    if (!translations || !translations.trim()) {
-      throw new HttpException('Input string is empty', HttpStatus.BAD_REQUEST);
-    }
-
-    const splitWords = translations.split(',').map((word) => word.trim());
-
-    if (splitWords.length % 2 !== 0) {
-      throw new HttpException(
-        'Input string does not have an even number of words',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    for (let i = 0; i < splitWords.length - 1; i += 2) {
-      const turkishTranslation = splitWords[i];
-      const englishTranslation = splitWords[i + 1];
-
-      const translation = this.translationRepository.create({
-        turkishTranslation,
-        englishTranslation,
-      });
-      try {
-        this.translationRepository.save(translation);
-      } catch (error) {
-        console.error(error);
-        throw new HttpException(
-          'Error saving translation to the database',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-    }
+    // if (!translations || !translations.trim()) {
+    //   throw new HttpException('Input string is empty', HttpStatus.BAD_REQUEST);
+    // }
+    // const splitWords = translations.split(',').map((word) => word.trim());
+    // if (splitWords.length % 2 !== 0) {
+    //   throw new HttpException(
+    //     'Input string does not have an even number of words',
+    //     HttpStatus.BAD_REQUEST,
+    //   );
+    // }
+    // for (let i = 0; i < splitWords.length - 1; i += 2) {
+    //   const turkishTranslation = splitWords[i];
+    //   const englishTranslation = splitWords[i + 1];
+    //   const translation = this.translationRepository.create({
+    //     turkishConjugated,
+    //     englishWord,
+    //     turkishInfinitive,
+    //   });
+    //   try {
+    //     this.translationRepository.save(translation);
+    //   } catch (error) {
+    //     console.error(error);
+    //     throw new HttpException(
+    //       'Error saving translation to the database',
+    //       HttpStatus.INTERNAL_SERVER_ERROR,
+    //     );
+    //   }
+    // }
   }
 
   async findAll(): Promise<GetTranslationDto[]> {
@@ -52,8 +49,9 @@ export class TranslationsService {
 
       return translations.map((translation) => ({
         id: translation.id,
-        englishTranslation: translation.englishTranslation,
-        turkishTranslation: translation.turkishTranslation,
+        englishWord: translation.englishWord,
+        turkishInfinitive: translation.turkishInfinitive,
+        turkishConjugated: translation.turkishConjugated,
       }));
     } catch (error) {
       throw new HttpException(
