@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { GuidesService } from './guides.service';
 import { CreateGuideDto } from './dto/create-guide.dto';
 import { UpdateGuideDto } from './dto/update-guide.dto';
@@ -9,6 +17,8 @@ export class GuidesController {
 
   @Post()
   create(@Body() createGuideDto: CreateGuideDto) {
+    console.log(createGuideDto);
+
     return this.guidesService.create(createGuideDto);
   }
 

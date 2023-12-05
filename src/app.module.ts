@@ -7,13 +7,13 @@ import { Translation } from './translations/entities/translation.entity';
 import { DataSource } from 'typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { GuidesModule } from './guides/guides.module';
-import { GuidesModule } from './guides/guides.module';
 import { GuidesService } from './guides/guides.service';
-import { GuidesModule } from './guides/guides.module';
+import { Guide } from './guides/entities/guide.entity';
 
 @Module({
   imports: [
     TranslationsModule,
+    GuidesModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -24,14 +24,13 @@ import { GuidesModule } from './guides/guides.module';
       username: process.env.DB_USERNAME || 'root',
       password: process.env.DB_PASSWORD || 'YourDatabasePassword',
       database: process.env.DB_DATABASE || 'translations',
-      entities: [Translation],
+      entities: [Translation, Guide],
       synchronize: true,
       autoLoadEntities: true,
     }),
-    GuidesModule,
   ],
   controllers: [AppController],
-  providers: [AppService, GuidesService],
+  providers: [AppService],
 })
 export class AppModule {
   constructor(private dataSource: DataSource) {}
