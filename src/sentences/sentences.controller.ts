@@ -1,19 +1,28 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { SentencesService } from './sentences.service';
 import { CreateSentenceDto } from './dto/create-sentence.dto';
 import { UpdateSentenceDto } from './dto/update-sentence.dto';
+import { Sentence } from './entities/sentence.entity';
 
 @Controller('sentences')
 export class SentencesController {
   constructor(private readonly sentencesService: SentencesService) {}
 
   @Post()
-  create(@Body() createSentenceDto: CreateSentenceDto) {
+  create(@Body() createSentenceDto: CreateSentenceDto): Promise<Sentence> {
     return this.sentencesService.create(createSentenceDto);
   }
 
   @Get()
-  findAll() {
+  findAll(): Promise<Sentence[]> {
     return this.sentencesService.findAll();
   }
 
@@ -23,7 +32,10 @@ export class SentencesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSentenceDto: UpdateSentenceDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateSentenceDto: UpdateSentenceDto,
+  ) {
     return this.sentencesService.update(+id, updateSentenceDto);
   }
 

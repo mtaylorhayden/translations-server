@@ -1,15 +1,39 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateSentenceDto } from './dto/create-sentence.dto';
 import { UpdateSentenceDto } from './dto/update-sentence.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Sentence } from './entities/sentence.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class SentencesService {
-  create(createSentenceDto: CreateSentenceDto) {
-    return 'This action adds a new sentence';
+  constructor(
+    @InjectRepository(Sentence)
+    private sentenceRepository: Repository<Sentence>,
+  ) {}
+
+  create(createSentenceDto: CreateSentenceDto): Promise<Sentence> {
+    try {
+      return this.sentenceRepository.save(createSentenceDto);
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        'Error saving sentence to the database',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
-  findAll() {
-    return `This action returns all sentences`;
+  findAll(): Promise<Sentence[]> {
+    try {
+      return this.sentenceRepository.find();
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        'Error finding sentences from the database',
+        HttpStatus.NOT_FOUND,
+      );
+    }
   }
 
   findOne(id: number) {
