@@ -1,17 +1,53 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { UpdateTranslationDto } from './dto/update-translation.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Translation } from './entities/translation.entity';
 import { Repository } from 'typeorm';
 import { GetTranslationDto } from './dto/get-translation.dto';
 import { CreateTranslationDto } from './dto/create-translation.dto';
+import { Guide } from 'src/guides/entities/guide.entity';
 
 @Injectable()
 export class TranslationsService {
   constructor(
     @InjectRepository(Translation)
     private translationRepository: Repository<Translation>,
+    @InjectRepository(Guide)
+    private guideRepository: Repository<Guide>,
   ) {}
+
+  async addTranslationToGuide(
+    createTranslationDto: CreateTranslationDto,
+    guideId: number,
+  ): Promise<CreateTranslationDto> {
+    try {
+      const translation =
+        await this.translationRepository.save(createTranslationDto);
+
+      const guide = await this.guideRepository.findOne({
+        where: { id: guideId },
+        relations: ['translations'],
+      });
+
+      if (guide) {
+        guide.translations.push(translation);
+        await this.guideRepository.save(guide);
+        return translation;
+      } else {
+        throw new NotFoundException(`Guide with id ${guideId} not found`);
+      }
+    } catch (error) {
+      throw new HttpException(
+        'Error saving translation to the database',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 
   async create(
     createTranslationDto: CreateTranslationDto,

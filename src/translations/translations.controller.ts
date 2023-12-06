@@ -16,6 +16,17 @@ import { GetTranslationDto } from './dto/get-translation.dto';
 export class TranslationsController {
   constructor(private readonly translationsService: TranslationsService) {}
 
+  @Post('/guide/:id')
+  addTranslationToGuide(
+    @Body() createTranslationDto: CreateTranslationDto,
+    @Param('id') id: string,
+  ): Promise<CreateTranslationDto> {
+    return this.translationsService.addTranslationToGuide(
+      createTranslationDto,
+      +id,
+    );
+  }
+
   @Post()
   create(
     @Body() createTranslationDto: CreateTranslationDto,
