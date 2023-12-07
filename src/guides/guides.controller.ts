@@ -11,14 +11,17 @@ import { GuidesService } from './guides.service';
 import { CreateGuideDto } from './dto/create-guide.dto';
 import { UpdateGuideDto } from './dto/update-guide.dto';
 import { GetGuideDto } from './dto/get-guide.dto';
+import { CreateFullGuideDto } from './dto/create-full-guide.dto';
 
 @Controller('guides')
 export class GuidesController {
   constructor(private readonly guidesService: GuidesService) {}
 
   @Post()
-  create(@Body() createGuideDto: CreateGuideDto) {
-    return 'not implemeneted';
+  create(
+    @Body() createFullGuideDto: CreateFullGuideDto,
+  ): Promise<CreateFullGuideDto> {
+    return this.guidesService.create(createFullGuideDto);
   }
 
   @Post('/translation/:translationId/sentence/:sentenceId')

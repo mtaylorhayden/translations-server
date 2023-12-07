@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { GetGuideDto } from './dto/get-guide.dto';
 import { Translation } from 'src/translations/entities/translation.entity';
 import { Sentence } from 'src/sentences/entities/sentence.entity';
+import { CreateFullGuideDto } from './dto/create-full-guide.dto';
 
 @Injectable()
 export class GuidesService {
@@ -115,8 +116,21 @@ export class GuidesService {
     );
   }
 
-  create(createGuideDto: CreateGuideDto) {
-    return 'not implemented';
+  async create(
+    createFullGuideDto: CreateFullGuideDto,
+  ): Promise<CreateFullGuideDto> {
+    try {
+      // create the other two objects first then connect all
+      await this.translationRepository.save(createFullGuideDto.translations);
+      await this.sentenceRepository.save(createFullGuideDto.sentences);
+      return await this.guideRepository.save(createFullGuideDto);
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(
+        `Error creating guide ${error.message}`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
   }
 
   update(id: number, updateGuideDto: UpdateGuideDto) {
