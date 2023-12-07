@@ -11,6 +11,7 @@ import { TranslationsService } from './translations.service';
 import { CreateTranslationDto } from './dto/create-translation.dto';
 import { UpdateTranslationDto } from './dto/update-translation.dto';
 import { GetTranslationDto } from './dto/get-translation.dto';
+import { Translation } from './entities/translation.entity';
 
 @Controller('translations')
 export class TranslationsController {
@@ -28,11 +29,10 @@ export class TranslationsController {
   }
 
   @Post()
-  create(
-    @Body() createTranslationDto: CreateTranslationDto,
-  ): Promise<CreateTranslationDto> {
-    console.log('Received DTO:', createTranslationDto);
-    return this.translationsService.create(createTranslationDto);
+  create(@Body() createTranslationDto: CreateTranslationDto): string {
+    // console.log('Received DTO:', createTranslationDto);
+    // return this.translationsService.create(createTranslationDto);
+    return 'Not implemented, use /translations/guide/:id';
   }
 
   @Get()
@@ -49,7 +49,7 @@ export class TranslationsController {
   update(
     @Param('id') id: string,
     @Body() updateTranslationDto: UpdateTranslationDto,
-  ) {
+  ): Promise<Translation> {
     return this.translationsService.update(+id, updateTranslationDto);
   }
 

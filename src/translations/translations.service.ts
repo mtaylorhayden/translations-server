@@ -49,20 +49,6 @@ export class TranslationsService {
     }
   }
 
-  async create(
-    createTranslationDto: CreateTranslationDto,
-  ): Promise<CreateTranslationDto> {
-    try {
-      return await this.translationRepository.save(createTranslationDto);
-    } catch (error) {
-      console.error(error);
-      throw new HttpException(
-        'Error saving translation to the database',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
   async findAll(): Promise<GetTranslationDto[]> {
     try {
       const translations = await this.translationRepository.find();
@@ -85,11 +71,48 @@ export class TranslationsService {
     return `This action returns a #${id} translation`;
   }
 
-  update(id: number, updateTranslationDto: UpdateTranslationDto) {
-    return `This action updates a #${id} translation`;
+  async update(
+    id: number,
+    updateTranslationDto: UpdateTranslationDto,
+  ): Promise<Translation> {
+    try {
+      const translation = await this.translationRepository.findOne({
+        where: { id: id },
+      });
+      if (translation) {
+        Object.assign(translation, updateTranslationDto);
+        return await this.translationRepository.save(translation);
+      } else {
+        throw new HttpException(
+          'Error finding translation in the database',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+    } catch (error) {
+      console.error('Error updating translation:', error.message);
+      throw new HttpException(
+        'Internal server error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   remove(id: number) {
     return `This action removes a #${id} translation`;
+  }
+
+  // not implemented
+  async create(
+    createTranslationDto: CreateTranslationDto,
+  ): Promise<CreateTranslationDto> {
+    try {
+      return await this.translationRepository.save(createTranslationDto);
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        'Error saving translation to the database',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }
