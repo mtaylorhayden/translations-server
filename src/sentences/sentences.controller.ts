@@ -16,11 +16,6 @@ import { Sentence } from './entities/sentence.entity';
 export class SentencesController {
   constructor(private readonly sentencesService: SentencesService) {}
 
-  @Post()
-  create(@Body() createSentenceDto: CreateSentenceDto): Promise<Sentence> {
-    return this.sentencesService.create(createSentenceDto);
-  }
-
   @Post('/guide/:id')
   addToGuide(
     @Body() createSentenceDto: CreateSentenceDto,
@@ -43,12 +38,19 @@ export class SentencesController {
   update(
     @Param('id') id: string,
     @Body() updateSentenceDto: UpdateSentenceDto,
-  ) {
+  ): Promise<Sentence> {
     return this.sentencesService.update(+id, updateSentenceDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.sentencesService.remove(+id);
+  }
+
+  // not implemented
+  @Post()
+  create(@Body() createSentenceDto: CreateSentenceDto): string {
+    return 'not implemented, use /sentences/guide/:id';
+    // return this.sentencesService.create(createSentenceDto);
   }
 }
