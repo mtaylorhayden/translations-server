@@ -54,7 +54,7 @@ export class TranslationsController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: string): Promise<string> {
     return this.translationsService.remove(+id);
   }
 }

@@ -97,8 +97,19 @@ export class TranslationsService {
     }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} translation`;
+  async remove(id: number): Promise<string> {
+    try {
+      const transalation = await this.translationRepository.findOne({
+        where: { id: id },
+      });
+      await this.translationRepository.remove(transalation);
+      return `Successfully removed translation ${id}`;
+    } catch (error) {
+      throw new HttpException(
+        `Could not find guide with id: ${id}`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
   }
 
   // not implemented
