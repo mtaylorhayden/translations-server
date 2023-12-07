@@ -48,7 +48,10 @@ export class GuidesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateGuideDto: UpdateGuideDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateGuideDto: UpdateGuideDto,
+  ): Promise<UpdateGuideDto> {
     return this.guidesService.update(+id, updateGuideDto);
   }
 

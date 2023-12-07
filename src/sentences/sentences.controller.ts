@@ -43,7 +43,7 @@ export class SentencesController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: string): Promise<string> {
     return this.sentencesService.remove(+id);
   }
 

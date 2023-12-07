@@ -120,7 +120,6 @@ export class GuidesService {
     createFullGuideDto: CreateFullGuideDto,
   ): Promise<CreateFullGuideDto> {
     try {
-      // create the other two objects first then connect all
       await this.translationRepository.save(createFullGuideDto.translations);
       await this.sentenceRepository.save(createFullGuideDto.sentences);
       return await this.guideRepository.save(createFullGuideDto);
@@ -133,8 +132,85 @@ export class GuidesService {
     }
   }
 
-  update(id: number, updateGuideDto: UpdateGuideDto) {
-    return `This action updates a #${id} guide`;
+  async update(
+    id: number,
+    updateGuideDto: UpdateGuideDto,
+  ): Promise<UpdateGuideDto> {
+    try {
+      const guide = await this.guideRepository.findOne({
+        where: { id: id },
+        relations: ['translations', 'sentences'],
+      });
+
+      if (!guide) {
+        throw new HttpException('Guide not found', HttpStatus.NOT_FOUND);
+      }
+
+      // Update guide properties
+      Object.assign(guide, updateGuideDto);
+
+      const sentence = await this.sentenceRepository.findOne({
+        where: { guide: { id: id } },
+        relations: ['guide'],
+      });
+      await this.sentenceRepository.delete(sentence);
+
+      // Update sentences
+      if (updateGuideDto.sentences && updateGuideDto.sentences.length > 0) {
+        if (!guide.sentences) {
+          guide.sentences = [];
+        }
+        guide.translations.forEach((sentence, index) => {
+          Object.assign(sentence, updateGuideDto.sentences[index]);
+        });
+      }
+
+      // Update translations
+      if (
+        updateGuideDto.translations &&
+        updateGuideDto.translations.length > 0
+      ) {
+        if (!guide.translations) {
+          guide.translations = [];
+        }
+        guide.translations.forEach((translation, index) => {
+          Object.assign(translation, updateGuideDto.translations[index]);
+        });
+      }
+
+      // Save the updated guide with relationships
+      const updatedGuide = await this.guideRepository.save(guide);
+
+      return updatedGuide;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    //   const sentence = await this.sentenceRepository.findOne({
+    //     where: { guide: { id: id } },
+    //     relations: ['guide'],
+    //   });
+    //   const translation = await this.translationRepository.findOne({
+    //     where: { guide: { id: id } },
+    //     relations: ['guide'],
+    //   });
+    //   if (sentence) {
+    //     Object.assign(sentence, updateGuideDto.sentences[0]);
+    //     sentence.guide = guide;
+    //     await this.sentenceRepository.save(sentence);
+    //   }
+    //   if (translation) {
+    //     Object.assign(translation, updateGuideDto.translations);
+    //     translation.guide = guide;
+    //     await this.translationRepository.save(translation);
+    //   }
+
+    //   if (guide) {
+    //     Object.assign(guide, updateGuideDto);
+    //     return await this.guideRepository.save(guide);
+    //   }
+    // } catch (error) {
+    //   throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    // }
   }
 
   remove(id: number) {
