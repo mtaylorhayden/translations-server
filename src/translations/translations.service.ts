@@ -1,48 +1,65 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { UpdateTranslationDto } from './dto/update-translation.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Translation } from './entities/translation.entity';
 import { Repository } from 'typeorm';
 import { GetTranslationDto } from './dto/get-translation.dto';
+import { CreateTranslationDto } from './dto/create-translation.dto';
+import { Guide } from 'src/guides/entities/guide.entity';
 
 @Injectable()
 export class TranslationsService {
   constructor(
     @InjectRepository(Translation)
     private translationRepository: Repository<Translation>,
+    @InjectRepository(Guide)
+    private guideRepository: Repository<Guide>,
   ) {}
 
-  create(translations: string) {
-    if (!translations || !translations.trim()) {
-      throw new HttpException('Input string is empty', HttpStatus.BAD_REQUEST);
-    }
+  async addTranslationToGuide(
+    createTranslationDto: CreateTranslationDto,
+    guideId: number,
+  ): Promise<CreateTranslationDto> {
+    try {
+      const translation =
+        await this.translationRepository.save(createTranslationDto);
 
-    const splitWords = translations.split(',').map((word) => word.trim());
+      const guide = await this.guideRepository.findOne({
+        where: { id: guideId },
+        relations: ['translations'],
+      });
 
-    if (splitWords.length % 2 !== 0) {
+      if (guide) {
+        guide.translations.push(translation);
+        await this.guideRepository.save(guide);
+        return translation;
+      } else {
+        throw new NotFoundException(`Guide with id ${guideId} not found`);
+      }
+    } catch (error) {
       throw new HttpException(
-        'Input string does not have an even number of words',
-        HttpStatus.BAD_REQUEST,
+        'Error saving translation to the database',
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
 
-    for (let i = 0; i < splitWords.length - 1; i += 2) {
-      const turkishTranslation = splitWords[i];
-      const englishTranslation = splitWords[i + 1];
-
-      const translation = this.translationRepository.create({
-        turkishTranslation,
-        englishTranslation,
-      });
-      try {
-        this.translationRepository.save(translation);
-      } catch (error) {
-        console.error(error);
-        throw new HttpException(
-          'Error saving translation to the database',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
+  async create(
+    createTranslationDto: CreateTranslationDto,
+  ): Promise<CreateTranslationDto> {
+    try {
+      return await this.translationRepository.save(createTranslationDto);
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        'Error saving translation to the database',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -52,8 +69,9 @@ export class TranslationsService {
 
       return translations.map((translation) => ({
         id: translation.id,
-        englishTranslation: translation.englishTranslation,
-        turkishTranslation: translation.turkishTranslation,
+        englishWord: translation.englishWord,
+        turkishInfinitive: translation.turkishInfinitive,
+        turkishConjugated: translation.turkishConjugated,
       }));
     } catch (error) {
       throw new HttpException(

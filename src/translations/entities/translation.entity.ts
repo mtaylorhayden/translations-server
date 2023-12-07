@@ -1,7 +1,9 @@
+import { Guide } from 'src/guides/entities/guide.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -12,10 +14,13 @@ export class Translation {
   id: number;
 
   @Column()
-  englishTranslation: string;
+  englishWord: string;
 
   @Column()
-  turkishTranslation: string;
+  turkishInfinitive: string;
+
+  @Column()
+  turkishConjugated: string;
 
   @Column({ default: false })
   isDeleted: boolean;
@@ -25,4 +30,7 @@ export class Translation {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @ManyToOne(() => Guide, (guide) => guide.translations)
+  guide: Guide;
 }

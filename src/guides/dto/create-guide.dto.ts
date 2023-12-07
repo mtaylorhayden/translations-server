@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { Optional } from '@nestjs/common';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateGuideDto {
   @IsString()
@@ -12,4 +13,8 @@ export class CreateGuideDto {
   @IsString()
   @IsNotEmpty()
   examples: string;
+
+  @IsString()
+  @IsOptional()
+  subDescription?: string;
 }

@@ -3,5 +3,13 @@ import { IsString, IsNotEmpty, ValidateNested, IsArray } from 'class-validator';
 export class CreateTranslationDto {
   @IsString()
   @IsNotEmpty()
-  translations: string;
+  englishWord: string;
+
+  @IsString()
+  @IsNotEmpty()
+  turkishInfinitive: string;
+
+  @IsString()
+  @IsNotEmpty()
+  turkishConjugated: string;
 }

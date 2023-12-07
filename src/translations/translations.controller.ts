@@ -16,11 +16,23 @@ import { GetTranslationDto } from './dto/get-translation.dto';
 export class TranslationsController {
   constructor(private readonly translationsService: TranslationsService) {}
 
+  @Post('/guide/:id')
+  addTranslationToGuide(
+    @Body() createTranslationDto: CreateTranslationDto,
+    @Param('id') id: string,
+  ): Promise<CreateTranslationDto> {
+    return this.translationsService.addTranslationToGuide(
+      createTranslationDto,
+      +id,
+    );
+  }
+
   @Post()
-  create(@Body() { translations }: CreateTranslationDto) {
-    console.log('Received DTO:', translations);
-    this.translationsService.create(translations);
-    return 'Translation created successfully';
+  create(
+    @Body() createTranslationDto: CreateTranslationDto,
+  ): Promise<CreateTranslationDto> {
+    console.log('Received DTO:', createTranslationDto);
+    return this.translationsService.create(createTranslationDto);
   }
 
   @Get()

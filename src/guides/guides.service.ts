@@ -1,27 +1,64 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { CreateGuideDto } from './dto/create-guide.dto';
 import { UpdateGuideDto } from './dto/update-guide.dto';
 import { Guide } from './entities/guide.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { GetGuideDto } from './dto/get-guide.dto';
+import { Translation } from 'src/translations/entities/translation.entity';
+import { Sentence } from 'src/sentences/entities/sentence.entity';
 
 @Injectable()
 export class GuidesService {
   constructor(
     @InjectRepository(Guide)
     private guideRepository: Repository<Guide>,
+    @InjectRepository(Translation)
+    private translationRepository: Repository<Translation>,
+    @InjectRepository(Sentence)
+    private sentenceRepository: Repository<Sentence>,
   ) {}
 
-  create(createGuideDto: CreateGuideDto) {
-    const guide = this.guideRepository.create(createGuideDto);
+  async createGuideWithTranslation(
+    dto: CreateGuideDto,
+    translationId: number,
+    sentenceId: number,
+  ) {
+    const translation: Translation = await this.translationRepository.findOne({
+      where: {
+        id: translationId,
+      },
+    });
 
-    try {
-      return this.guideRepository.save(guide);
-    } catch (error) {
+    const sentence: Sentence = await this.sentenceRepository.findOne({
+      where: {
+        id: sentenceId,
+      },
+    });
+
+    // if we found a translation then create a guide
+    if (translation && sentence) {
+      let guide: Guide = new Guide();
+      guide.translations = [translation];
+      guide.sentences = [sentence];
+      guide.title = dto.title;
+      guide.description = dto.description;
+      guide.examples = dto.examples;
+      if (dto.subDescription) {
+        guide.subDescription = dto.subDescription;
+      }
+      try {
+        return await this.guideRepository.save(guide);
+      } catch (error) {
+        throw new HttpException(
+          'Error saving guide to the database',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    } else {
       throw new HttpException(
-        'Error saving guide to the database',
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        'Error finding translation for guide from the database',
+        HttpStatus.NOT_FOUND,
       );
     }
   }
@@ -35,7 +72,10 @@ export class GuidesService {
           id: guide.id,
           title: guide.title,
           description: guide.description,
+          subDescription: guide?.subDescription,
           examples: guide.examples,
+          sentences: guide.sentences,
+          translations: guide.translations,
         }));
       } else {
         return [];
@@ -54,6 +94,7 @@ export class GuidesService {
       where: {
         id: id,
       },
+      relations: ['sentences', 'translations'],
     });
 
     if (guide) {
@@ -61,7 +102,10 @@ export class GuidesService {
         id,
         title: guide.title,
         description: guide.description,
+        subDescription: guide?.subDescription,
         examples: guide.examples,
+        sentences: guide.sentences,
+        translations: guide.translations,
       };
     }
 
@@ -69,6 +113,10 @@ export class GuidesService {
       `Could not find guide with id: ${id}`,
       HttpStatus.NOT_FOUND,
     );
+  }
+
+  create(createGuideDto: CreateGuideDto) {
+    return 'not implemented';
   }
 
   update(id: number, updateGuideDto: UpdateGuideDto) {

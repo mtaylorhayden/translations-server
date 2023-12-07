@@ -3,9 +3,11 @@ import { GuidesService } from './guides.service';
 import { GuidesController } from './guides.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Guide } from './entities/guide.entity';
+import { Translation } from 'src/translations/entities/translation.entity';
+import { Sentence } from 'src/sentences/entities/sentence.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Guide])],
+  imports: [TypeOrmModule.forFeature([Guide, Translation, Sentence])],
   controllers: [GuidesController],
   providers: [GuidesService],
 })
