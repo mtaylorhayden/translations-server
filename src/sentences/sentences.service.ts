@@ -21,6 +21,7 @@ export class SentencesService {
     private guideRepository: Repository<Guide>,
   ) {}
 
+  // if something here fails then we need to roll back the entire transaction.
   async addToGuide(createSentenceDto: CreateSentenceDto, guideId: number) {
     try {
       const sentence = await this.sentenceRepository.save(createSentenceDto);

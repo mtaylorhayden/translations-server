@@ -7,10 +7,10 @@ export class Sentence {
   id: number;
 
   @Column()
-  english: string;
+  aSide: string;
 
   @Column()
-  turkish: string;
+  bSide: string;
 
   @ManyToOne(() => Guide, (guide) => guide.sentences)
   guide: Guide;
