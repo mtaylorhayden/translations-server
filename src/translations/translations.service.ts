@@ -99,14 +99,14 @@ export class TranslationsService {
 
   async remove(id: number): Promise<string> {
     try {
-      const transalation = await this.translationRepository.findOne({
-        where: { id: id },
+      const translation = await this.translationRepository.findOneOrFail({
+        where: { id },
       });
-      await this.translationRepository.remove(transalation);
+      await this.translationRepository.remove(translation);
       return `Successfully removed translation ${id}`;
     } catch (error) {
       throw new HttpException(
-        `Could not find guide with id: ${id}`,
+        `Could not find translation with id: ${id}`,
         HttpStatus.NOT_FOUND,
       );
     }
