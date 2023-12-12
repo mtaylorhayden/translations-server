@@ -149,11 +149,14 @@ export class GuidesService {
       // Update guide properties
       Object.assign(guide, updateGuideDto);
 
+      // delete existing sentence
       const sentence = await this.sentenceRepository.findOne({
         where: { guide: { id: id } },
         relations: ['guide'],
       });
-      await this.sentenceRepository.delete(sentence);
+      if (sentence) {
+        await this.sentenceRepository.delete(sentence);
+      }
 
       // Update sentences
       if (updateGuideDto.sentences && updateGuideDto.sentences.length > 0) {
@@ -163,6 +166,15 @@ export class GuidesService {
         guide.translations.forEach((sentence, index) => {
           Object.assign(sentence, updateGuideDto.sentences[index]);
         });
+      }
+
+      // delete existing translation
+      const translation = await this.translationRepository.findOne({
+        where: { guide: { id: id } },
+        relations: ['guide'],
+      });
+      if (translation) {
+        await this.translationRepository.delete(translation);
       }
 
       // Update translations
