@@ -116,6 +116,7 @@ export class GuidesService {
     );
   }
 
+  // do we need to save each sentence and translation separately?
   async create(
     createFullGuideDto: CreateFullGuideDto,
   ): Promise<CreateFullGuideDto> {
@@ -132,6 +133,7 @@ export class GuidesService {
     }
   }
 
+  // do we need to save each sentence and translation separately?
   async update(
     id: number,
     updateGuideDto: UpdateGuideDto,
@@ -197,35 +199,20 @@ export class GuidesService {
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    //   const sentence = await this.sentenceRepository.findOne({
-    //     where: { guide: { id: id } },
-    //     relations: ['guide'],
-    //   });
-    //   const translation = await this.translationRepository.findOne({
-    //     where: { guide: { id: id } },
-    //     relations: ['guide'],
-    //   });
-    //   if (sentence) {
-    //     Object.assign(sentence, updateGuideDto.sentences[0]);
-    //     sentence.guide = guide;
-    //     await this.sentenceRepository.save(sentence);
-    //   }
-    //   if (translation) {
-    //     Object.assign(translation, updateGuideDto.translations);
-    //     translation.guide = guide;
-    //     await this.translationRepository.save(translation);
-    //   }
-
-    //   if (guide) {
-    //     Object.assign(guide, updateGuideDto);
-    //     return await this.guideRepository.save(guide);
-    //   }
-    // } catch (error) {
-    //   throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    // }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} guide`;
+  async remove(id: number): Promise<string> {
+    const guide = await this.guideRepository.findOne({
+      where: { id },
+      relations: ['translations', 'sentences'],
+    });
+    if (!guide) {
+      throw new HttpException(
+        `Could not find guide with id: ${id}`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    await this.guideRepository.remove(guide);
+    return `Successfully removed guide ${id}`;
   }
 }

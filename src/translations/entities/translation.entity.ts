@@ -31,6 +31,9 @@ export class Translation {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToOne(() => Guide, (guide) => guide.translations)
+  @ManyToOne(() => Guide, (guide) => guide.translations, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   guide: Guide;
 }

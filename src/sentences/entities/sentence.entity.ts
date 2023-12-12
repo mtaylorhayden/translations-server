@@ -12,6 +12,9 @@ export class Sentence {
   @Column()
   bSide: string;
 
-  @ManyToOne(() => Guide, (guide) => guide.sentences)
+  @ManyToOne(() => Guide, (guide) => guide.sentences, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   guide: Guide;
 }
