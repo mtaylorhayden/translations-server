@@ -12,6 +12,7 @@ import { CreateGuideDto } from './dto/create-guide.dto';
 import { UpdateGuideDto } from './dto/update-guide.dto';
 import { GetGuideDto } from './dto/get-guide.dto';
 import { CreateFullGuideDto } from './dto/create-full-guide.dto';
+import { UpdateResult } from 'typeorm';
 
 @Controller('guides')
 export class GuidesController {
@@ -24,6 +25,7 @@ export class GuidesController {
     return this.guidesService.create(createFullGuideDto);
   }
 
+  // for existing translations and sentences
   @Post('/translation/:translationId/sentence/:sentenceId')
   createGuide(
     @Param('translationId') translationId: string,
@@ -48,10 +50,7 @@ export class GuidesController {
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateGuideDto: UpdateGuideDto,
-  ): Promise<UpdateGuideDto> {
+  update(@Param('id') id: string, @Body() updateGuideDto: UpdateGuideDto) {
     return this.guidesService.update(+id, updateGuideDto);
   }
 

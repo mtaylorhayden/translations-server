@@ -37,9 +37,13 @@ export class Guide {
 
   @OneToMany(() => Translation, (translation) => translation.guide, {
     cascade: true,
+    eager: true,
   })
   translations: Translation[];
 
-  @OneToMany(() => Sentence, (sentence) => sentence.guide, { cascade: true })
+  @OneToMany(() => Sentence, (sentence) => sentence.guide, {
+    cascade: true,
+    eager: true,
+  })
   sentences: Sentence[];
 }

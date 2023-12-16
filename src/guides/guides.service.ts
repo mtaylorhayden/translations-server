@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { CreateGuideDto } from './dto/create-guide.dto';
 import { UpdateGuideDto } from './dto/update-guide.dto';
 import { Guide } from './entities/guide.entity';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { GetGuideDto } from './dto/get-guide.dto';
 import { Translation } from 'src/translations/entities/translation.entity';
@@ -134,70 +134,106 @@ export class GuidesService {
   }
 
   // do we need to save each sentence and translation separately?
-  async update(
-    id: number,
-    updateGuideDto: UpdateGuideDto,
-  ): Promise<UpdateGuideDto> {
+  // async update(
+  //   id: number,
+  //   updateGuideDto: UpdateGuideDto,
+  // ): Promise<UpdateGuideDto> {
+  //   try {
+  //     const guide = await this.guideRepository.findOne({
+  //       where: { id: id },
+  //       relations: ['translations', 'sentences'],
+  //     });
+
+  //     if (!guide) {
+  //       throw new HttpException('Guide not found', HttpStatus.NOT_FOUND);
+  //     }
+
+  //     // Update guide properties
+  //     Object.assign(guide, updateGuideDto);
+
+  //     // delete existing sentence
+  //     const sentence = await this.sentenceRepository.findOne({
+  //       where: { guide: { id: id } },
+  //       relations: ['guide'],
+  //     });
+  //     if (sentence) {
+  //       await this.sentenceRepository.delete(sentence);
+  //     }
+
+  //     // Update sentences
+  //     if (updateGuideDto.sentences && updateGuideDto.sentences.length > 0) {
+  //       if (!guide.sentences) {
+  //         guide.sentences = [];
+  //       }
+  //       guide.translations.forEach((sentence, index) => {
+  //         Object.assign(sentence, updateGuideDto.sentences[index]);
+  //       });
+  //     }
+
+  //     // delete existing translation
+  //     const translation = await this.translationRepository.findOne({
+  //       where: { guide: { id: id } },
+  //       relations: ['guide'],
+  //     });
+  //     if (translation) {
+  //       await this.translationRepository.delete(translation);
+  //     }
+
+  //     // Update translations
+  //     if (
+  //       updateGuideDto.translations &&
+  //       updateGuideDto.translations.length > 0
+  //     ) {
+  //       if (!guide.translations) {
+  //         guide.translations = [];
+  //       }
+  //       guide.translations.forEach((translation, index) => {
+  //         Object.assign(translation, updateGuideDto.translations[index]);
+  //       });
+  //     }
+
+  // Save the updated guide with relationships
+  //     const updatedGuide = await this.guideRepository.save(guide);
+
+  //     return updatedGuide;
+  //   } catch (error) {
+  //     throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+  //   }
+  // }
+
+  // todo
+  async update(id: number, updateGuideDto: UpdateGuideDto) {
     try {
+      // Find the guide by id
       const guide = await this.guideRepository.findOne({
         where: { id: id },
         relations: ['translations', 'sentences'],
       });
-
       if (!guide) {
-        throw new HttpException('Guide not found', HttpStatus.NOT_FOUND);
+        throw new HttpException(
+          `Could not find guide with id: ${id}`,
+          HttpStatus.NOT_FOUND,
+        );
       }
 
-      // Update guide properties
+      // Delete the existing sentences
+      if (updateGuideDto?.sentences?.length > 0) {
+        await this.sentenceRepository.delete({ guide: { id: id } });
+      }
+      // Delete the existing translations
+      if (updateGuideDto?.translations?.length > 0) {
+        await this.translationRepository.delete({ guide: { id: id } });
+      }
+
       Object.assign(guide, updateGuideDto);
 
-      // delete existing sentence
-      const sentence = await this.sentenceRepository.findOne({
-        where: { guide: { id: id } },
-        relations: ['guide'],
-      });
-      if (sentence) {
-        await this.sentenceRepository.delete(sentence);
-      }
-
-      // Update sentences
-      if (updateGuideDto.sentences && updateGuideDto.sentences.length > 0) {
-        if (!guide.sentences) {
-          guide.sentences = [];
-        }
-        guide.translations.forEach((sentence, index) => {
-          Object.assign(sentence, updateGuideDto.sentences[index]);
-        });
-      }
-
-      // delete existing translation
-      const translation = await this.translationRepository.findOne({
-        where: { guide: { id: id } },
-        relations: ['guide'],
-      });
-      if (translation) {
-        await this.translationRepository.delete(translation);
-      }
-
-      // Update translations
-      if (
-        updateGuideDto.translations &&
-        updateGuideDto.translations.length > 0
-      ) {
-        if (!guide.translations) {
-          guide.translations = [];
-        }
-        guide.translations.forEach((translation, index) => {
-          Object.assign(translation, updateGuideDto.translations[index]);
-        });
-      }
-
-      // Save the updated guide with relationships
-      const updatedGuide = await this.guideRepository.save(guide);
-
-      return updatedGuide;
+      // return await this.guideRepository.update(id, guide);
+      return await this.guideRepository.save(guide);
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        `Could not update guide with id: ${id}`,
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 
