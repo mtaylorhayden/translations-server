@@ -13,6 +13,7 @@ import { UpdateGuideDto } from './dto/update-guide.dto';
 import { GetGuideDto } from './dto/get-guide.dto';
 import { CreateFullGuideDto } from './dto/create-full-guide.dto';
 import { UpdateResult } from 'typeorm';
+import { Guide } from './entities/guide.entity';
 
 @Controller('guides')
 export class GuidesController {
@@ -50,7 +51,10 @@ export class GuidesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateGuideDto: UpdateGuideDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateGuideDto: UpdateGuideDto,
+  ): Promise<Guide> {
     return this.guidesService.update(+id, updateGuideDto);
   }
 
