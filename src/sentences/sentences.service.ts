@@ -9,36 +9,42 @@ import { CreateSentenceDto } from './dto/create-sentence.dto';
 import { UpdateSentenceDto } from './dto/update-sentence.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Sentence } from './entities/sentence.entity';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { Guide } from 'src/guides/entities/guide.entity';
 
 @Injectable()
 export class SentencesService {
   constructor(
+    private entityManager: EntityManager,
     @InjectRepository(Sentence)
     private sentenceRepository: Repository<Sentence>,
     @InjectRepository(Guide)
     private guideRepository: Repository<Guide>,
   ) {}
 
-  // if something here fails then we need to roll back the entire transaction.
-  async addToGuide(createSentenceDto: CreateSentenceDto, guideId: number) {
+  async addToGuide(
+    createSentenceDto: CreateSentenceDto,
+    guideId: number,
+  ): Promise<Sentence> {
     try {
-      const sentence = await this.sentenceRepository.save(createSentenceDto);
-
-      const guide = await this.guideRepository.findOne({
-        where: { id: guideId },
-        relations: ['sentences'],
-      });
-
-      // add the sentence to the guide
-      if (guide) {
-        guide.sentences.push(sentence);
-        await this.guideRepository.save(guide);
-        return sentence;
-      } else {
-        throw new NotFoundException(`Guide with id ${guideId} not found`);
-      }
+      return await this.entityManager.transaction(
+        async (transactionalEntityManager) => {
+          const sentence = await transactionalEntityManager.save(
+            Sentence,
+            createSentenceDto,
+          );
+          const guide = await transactionalEntityManager.findOne(Guide, {
+            where: { id: guideId },
+            relations: ['sentences'],
+          });
+          if (!guide) {
+            throw new NotFoundException(`Guide with id ${guideId} not found`);
+          }
+          guide.sentences.push(sentence);
+          await transactionalEntityManager.save(guide);
+          return sentence;
+        },
+      );
     } catch (error) {
       throw new HttpException(
         'Error saving sentence to the database',
