@@ -92,12 +92,7 @@ export class GuidesService {
   }
 
   async findOne(id: number): Promise<GetGuideDto> {
-    const guide = await this.guideRepository.findOne({
-      where: {
-        id: id,
-      },
-      relations: ['sentences', 'translations'],
-    });
+    const guide = await this.findGuide(id);
 
     if (guide) {
       return {
@@ -173,17 +168,23 @@ export class GuidesService {
   }
 
   async remove(id: number): Promise<string> {
+    const guide = await this.findGuide(id);
+    await this.guideRepository.remove(guide);
+    return `Successfully removed guide ${id}`;
+  }
+
+  async findGuide(id: number): Promise<Guide> {
     const guide = await this.guideRepository.findOne({
       where: { id },
       relations: ['translations', 'sentences'],
     });
+
     if (!guide) {
       throw new HttpException(
         `Could not find guide with id: ${id}`,
         HttpStatus.NOT_FOUND,
       );
     }
-    await this.guideRepository.remove(guide);
-    return `Successfully removed guide ${id}`;
+    return guide;
   }
 }
