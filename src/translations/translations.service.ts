@@ -7,14 +7,16 @@ import {
 import { UpdateTranslationDto } from './dto/update-translation.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Translation } from './entities/translation.entity';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { GetTranslationDto } from './dto/get-translation.dto';
 import { CreateTranslationDto } from './dto/create-translation.dto';
 import { Guide } from 'src/guides/entities/guide.entity';
+import { create } from 'domain';
 
 @Injectable()
 export class TranslationsService {
   constructor(
+    private entityManager: EntityManager,
     @InjectRepository(Translation)
     private translationRepository: Repository<Translation>,
     @InjectRepository(Guide)
@@ -26,21 +28,24 @@ export class TranslationsService {
     guideId: number,
   ): Promise<CreateTranslationDto> {
     try {
-      const translation =
-        await this.translationRepository.save(createTranslationDto);
-
-      const guide = await this.guideRepository.findOne({
-        where: { id: guideId },
-        relations: ['translations'],
-      });
-
-      if (guide) {
-        guide.translations.push(translation);
-        await this.guideRepository.save(guide);
-        return translation;
-      } else {
-        throw new NotFoundException(`Guide with id ${guideId} not found`);
-      }
+      return await this.entityManager.transaction(
+        async (transactionalEntityManager) => {
+          const translation = await transactionalEntityManager.save(
+            Translation,
+            createTranslationDto,
+          );
+          const guide = await transactionalEntityManager.findOne(Guide, {
+            where: { id: guideId },
+            relations: ['translations'],
+          });
+          if (!guide) {
+            throw new NotFoundException(`Guide with id ${guideId} not found`);
+          }
+          guide.translations.push(translation);
+          await transactionalEntityManager.save(guide);
+          return translation;
+        },
+      );
     } catch (error) {
       throw new HttpException(
         'Error saving translation to the database',
@@ -113,17 +118,17 @@ export class TranslationsService {
   }
 
   // not implemented
-  async create(
-    createTranslationDto: CreateTranslationDto,
-  ): Promise<CreateTranslationDto> {
-    try {
-      return await this.translationRepository.save(createTranslationDto);
-    } catch (error) {
-      console.error(error);
-      throw new HttpException(
-        'Error saving translation to the database',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
+  // async create(
+  //   createTranslationDto: CreateTranslationDto,
+  // ): Promise<CreateTranslationDto> {
+  //   try {
+  //     return await this.translationRepository.save(createTranslationDto);
+  //   } catch (error) {
+  //     console.error(error);
+  //     throw new HttpException(
+  //       'Error saving translation to the database',
+  //       HttpStatus.INTERNAL_SERVER_ERROR,
+  //     );
+  //   }
+  // }
 }
