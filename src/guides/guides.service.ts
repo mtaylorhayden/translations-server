@@ -1,8 +1,8 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateGuideDto } from './dto/create-guide.dto';
 import { UpdateGuideDto } from './dto/update-guide.dto';
 import { Guide } from './entities/guide.entity';
-import { Repository, UpdateResult } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { GetGuideDto } from './dto/get-guide.dto';
 import { Translation } from 'src/translations/entities/translation.entity';
@@ -12,6 +12,7 @@ import { CreateFullGuideDto } from './dto/create-full-guide.dto';
 @Injectable()
 export class GuidesService {
   constructor(
+    private entityManager: EntityManager,
     @InjectRepository(Guide)
     private guideRepository: Repository<Guide>,
     @InjectRepository(Translation)
@@ -116,15 +117,12 @@ export class GuidesService {
     );
   }
 
-  // do we need to save each sentence and translation separately?
   async create(
     createFullGuideDto: CreateFullGuideDto,
   ): Promise<CreateFullGuideDto> {
     try {
       let guide = new Guide();
-
       Object.assign(guide, createFullGuideDto);
-
       return await this.guideRepository.save(guide);
     } catch (error) {
       console.log(error);
@@ -135,33 +133,37 @@ export class GuidesService {
     }
   }
 
-  // add transaction around this
   async update(id: number, updateGuideDto: UpdateGuideDto): Promise<Guide> {
     try {
-      // Find the guide by id
-      const guide = await this.guideRepository.findOne({
-        where: { id: id },
-        relations: ['translations', 'sentences'],
-      });
-      if (!guide) {
-        throw new HttpException(
-          `Could not find guide with id: ${id}`,
-          HttpStatus.NOT_FOUND,
-        );
-      }
+      return await this.entityManager.transaction(
+        async (transactionalEntityManager) => {
+          // find the guide
+          const guide = await transactionalEntityManager.findOne(Guide, {
+            where: { id: id },
+          });
+          if (!guide) {
+            throw new HttpException(
+              `Could not find guide with id: ${id}`,
+              HttpStatus.NOT_FOUND,
+            );
+          }
 
-      // Delete the existing sentences
-      if (updateGuideDto?.sentences?.length > 0) {
-        await this.sentenceRepository.delete({ guide: { id: id } });
-      }
-      // Delete the existing translations
-      if (updateGuideDto?.translations?.length > 0) {
-        await this.translationRepository.delete({ guide: { id: id } });
-      }
-
-      Object.assign(guide, updateGuideDto);
-
-      return await this.guideRepository.save(guide);
+          // Delete the existing sentences
+          if (updateGuideDto?.sentences?.length > 0) {
+            await transactionalEntityManager.delete(Sentence, {
+              guide: { id: id },
+            });
+          }
+          // Delete the existing translations
+          if (updateGuideDto?.translations?.length > 0) {
+            await transactionalEntityManager.delete(Translation, {
+              guide: { id: id },
+            });
+          }
+          Object.assign(guide, updateGuideDto);
+          return await transactionalEntityManager.save(guide);
+        },
+      );
     } catch (error) {
       throw new HttpException(
         `Could not update guide with id: ${id}`,
