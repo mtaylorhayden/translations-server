@@ -121,9 +121,11 @@ export class GuidesService {
     createFullGuideDto: CreateFullGuideDto,
   ): Promise<CreateFullGuideDto> {
     try {
-      await this.translationRepository.save(createFullGuideDto.translations);
-      await this.sentenceRepository.save(createFullGuideDto.sentences);
-      return await this.guideRepository.save(createFullGuideDto);
+      let guide = new Guide();
+
+      Object.assign(guide, createFullGuideDto);
+
+      return await this.guideRepository.save(guide);
     } catch (error) {
       console.log(error);
       throw new HttpException(
@@ -133,6 +135,7 @@ export class GuidesService {
     }
   }
 
+  // add transaction around this
   async update(id: number, updateGuideDto: UpdateGuideDto): Promise<Guide> {
     try {
       // Find the guide by id
