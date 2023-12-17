@@ -7,11 +7,14 @@ export class Sentence {
   id: number;
 
   @Column()
-  english: string;
+  aSide: string;
 
   @Column()
-  turkish: string;
+  bSide: string;
 
-  @ManyToOne(() => Guide, (guide) => guide.sentences)
+  @ManyToOne(() => Guide, (guide) => guide.sentences, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   guide: Guide;
 }

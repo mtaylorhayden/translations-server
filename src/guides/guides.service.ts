@@ -1,16 +1,18 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateGuideDto } from './dto/create-guide.dto';
 import { UpdateGuideDto } from './dto/update-guide.dto';
 import { Guide } from './entities/guide.entity';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { GetGuideDto } from './dto/get-guide.dto';
 import { Translation } from 'src/translations/entities/translation.entity';
 import { Sentence } from 'src/sentences/entities/sentence.entity';
+import { CreateFullGuideDto } from './dto/create-full-guide.dto';
 
 @Injectable()
 export class GuidesService {
   constructor(
+    private entityManager: EntityManager,
     @InjectRepository(Guide)
     private guideRepository: Repository<Guide>,
     @InjectRepository(Translation)
@@ -90,12 +92,7 @@ export class GuidesService {
   }
 
   async findOne(id: number): Promise<GetGuideDto> {
-    const guide = await this.guideRepository.findOne({
-      where: {
-        id: id,
-      },
-      relations: ['sentences', 'translations'],
-    });
+    const guide = await this.findGuide(id);
 
     if (guide) {
       return {
@@ -115,15 +112,79 @@ export class GuidesService {
     );
   }
 
-  create(createGuideDto: CreateGuideDto) {
-    return 'not implemented';
+  async create(
+    createFullGuideDto: CreateFullGuideDto,
+  ): Promise<CreateFullGuideDto> {
+    try {
+      let guide = new Guide();
+      Object.assign(guide, createFullGuideDto);
+      return await this.guideRepository.save(guide);
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(
+        `Error creating guide ${error.message}`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
   }
 
-  update(id: number, updateGuideDto: UpdateGuideDto) {
-    return `This action updates a #${id} guide`;
+  async update(id: number, updateGuideDto: UpdateGuideDto): Promise<Guide> {
+    try {
+      return await this.entityManager.transaction(
+        async (transactionalEntityManager) => {
+          // find the guide
+          const guide = await transactionalEntityManager.findOne(Guide, {
+            where: { id: id },
+          });
+          if (!guide) {
+            throw new HttpException(
+              `Could not find guide with id: ${id}`,
+              HttpStatus.NOT_FOUND,
+            );
+          }
+
+          // Delete the existing sentences
+          if (updateGuideDto?.sentences?.length > 0) {
+            await transactionalEntityManager.delete(Sentence, {
+              guide: { id: id },
+            });
+          }
+          // Delete the existing translations
+          if (updateGuideDto?.translations?.length > 0) {
+            await transactionalEntityManager.delete(Translation, {
+              guide: { id: id },
+            });
+          }
+          Object.assign(guide, updateGuideDto);
+          return await transactionalEntityManager.save(guide);
+        },
+      );
+    } catch (error) {
+      throw new HttpException(
+        `Could not update guide with id: ${id}`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} guide`;
+  async remove(id: number): Promise<string> {
+    const guide = await this.findGuide(id);
+    await this.guideRepository.remove(guide);
+    return `Successfully removed guide ${id}`;
+  }
+
+  async findGuide(id: number): Promise<Guide> {
+    const guide = await this.guideRepository.findOne({
+      where: { id },
+      relations: ['translations', 'sentences'],
+    });
+
+    if (!guide) {
+      throw new HttpException(
+        `Could not find guide with id: ${id}`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return guide;
   }
 }

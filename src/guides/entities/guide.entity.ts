@@ -35,9 +35,15 @@ export class Guide {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @OneToMany(() => Translation, (translation) => translation.guide)
+  @OneToMany(() => Translation, (translation) => translation.guide, {
+    cascade: true,
+    eager: true,
+  })
   translations: Translation[];
 
-  @OneToMany(() => Sentence, (sentence) => sentence.guide)
+  @OneToMany(() => Sentence, (sentence) => sentence.guide, {
+    cascade: true,
+    eager: true,
+  })
   sentences: Sentence[];
 }
