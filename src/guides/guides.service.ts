@@ -128,7 +128,10 @@ export class GuidesService {
     }
   }
 
-  async update(id: number, updateGuideDto: UpdateGuideDto): Promise<Guide> {
+  async update(
+    id: number,
+    updateGuideDto: UpdateGuideDto,
+  ): Promise<UpdateGuideDto> {
     try {
       return await this.entityManager.transaction(
         async (transactionalEntityManager) => {
@@ -156,7 +159,8 @@ export class GuidesService {
             });
           }
           Object.assign(guide, updateGuideDto);
-          return await transactionalEntityManager.save(guide);
+          await transactionalEntityManager.save(guide);
+          return updateGuideDto;
         },
       );
     } catch (error) {

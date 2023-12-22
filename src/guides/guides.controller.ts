@@ -54,7 +54,7 @@ export class GuidesController {
   update(
     @Param('id') id: string,
     @Body() updateGuideDto: UpdateGuideDto,
-  ): Promise<Guide> {
+  ): Promise<UpdateGuideDto> {
     return this.guidesService.update(+id, updateGuideDto);
   }
 

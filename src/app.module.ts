@@ -9,6 +9,8 @@ import { ConfigModule } from '@nestjs/config';
 import { GuidesModule } from './guides/guides.module';
 import { Guide } from './guides/entities/guide.entity';
 import { SentencesModule } from './sentences/sentences.module';
+import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -29,6 +31,8 @@ import { SentencesModule } from './sentences/sentences.module';
       synchronize: true,
       autoLoadEntities: true,
     }),
+    UserModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
