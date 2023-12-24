@@ -1,14 +1,16 @@
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { AuthGuard } from './auth/auth.guard';
+import { AuthGuard } from './auth/guards/auth.guard';
+import { RolesGuard } from './auth/guards/roles.guard';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const authGuard = app.get(AuthGuard);
+  const rolesGuard = app.get(RolesGuard);
 
-  app.useGlobalGuards(authGuard);
+  app.useGlobalGuards(authGuard, rolesGuard);
 
   // Enable CORS
   app.enableCors({
