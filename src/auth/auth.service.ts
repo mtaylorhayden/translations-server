@@ -43,4 +43,13 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(password, salt);
     return hashedPassword;
   }
+
+  async refreshToken(user: any) {
+    const payload = { sub: user.id, username: user.username, role: user.role };
+    return {
+      access_token: await this.jwtService.signAsync(payload, {
+        secret: process.env.SECRET,
+      }),
+    };
+  }
 }
