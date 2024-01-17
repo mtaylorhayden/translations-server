@@ -5,9 +5,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Workbook } from './entities/workbook.entity';
 import { Guide } from 'src/guides/entities/guide.entity';
 import { BlankExercise } from 'src/blank-exercises/entities/blank-exercise.entity';
+import { UserProgress } from 'src/user-progress/entities/user-progress.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Workbook, Guide, BlankExercise])],
+  imports: [
+    TypeOrmModule.forFeature([Workbook, Guide, BlankExercise, UserProgress]),
+  ],
   controllers: [WorkbooksController],
   providers: [WorkbooksService],
 })

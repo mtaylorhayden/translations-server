@@ -2,10 +2,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { rolesEnum } from '../roles/rolesEnum';
+import { UserProgress } from 'src/user-progress/entities/user-progress.entity';
 
 @Entity()
 export class User {
@@ -35,4 +37,7 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @OneToOne(() => UserProgress, (userProgress) => userProgress.user)
+  userProgress: UserProgress;
 }

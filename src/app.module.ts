@@ -13,6 +13,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { WorkbooksModule } from './workbooks/workbooks.module';
 import { BlankExercisesModule } from './blank-exercises/blank-exercises.module';
+import { UserProgressModule } from './user-progress/user-progress.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { BlankExercisesModule } from './blank-exercises/blank-exercises.module';
     AuthModule,
     WorkbooksModule,
     BlankExercisesModule,
+    UserProgressModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,5 +1,12 @@
+import { UserProgress } from 'src/user-progress/entities/user-progress.entity';
 import { Workbook } from 'src/workbooks/entities/workbook.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class BlankExercise {
@@ -12,9 +19,9 @@ export class BlankExercise {
   @Column({ default: false })
   isComplete: boolean;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  progressDate: Date;
-
   @ManyToOne(() => Workbook, (workbook) => workbook.blankExercises)
   workbook: Workbook[];
+
+  @OneToMany(() => UserProgress, (userProgress) => userProgress.blankExercise)
+  userProgress: UserProgress;
 }
