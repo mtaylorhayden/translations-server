@@ -12,6 +12,7 @@ import { SentencesModule } from './sentences/sentences.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { WorkbooksModule } from './workbooks/workbooks.module';
+import { BlankExercisesModule } from './blank-exercises/blank-exercises.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { WorkbooksModule } from './workbooks/workbooks.module';
     UserModule,
     AuthModule,
     WorkbooksModule,
+    BlankExercisesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
