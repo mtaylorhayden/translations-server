@@ -1,11 +1,63 @@
-import { Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateBlankExerciseDto } from './dto/create-blank-exercise.dto';
 import { UpdateBlankExerciseDto } from './dto/update-blank-exercise.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { BlankExercise } from './entities/blank-exercise.entity';
+import { EntityManager, Repository } from 'typeorm';
+import { Workbook } from 'src/workbooks/entities/workbook.entity';
 
 @Injectable()
 export class BlankExercisesService {
-  create(createBlankExerciseDto: CreateBlankExerciseDto) {
-    return 'This action adds a new blankExercise';
+  constructor(
+    private entityManager: EntityManager,
+    @InjectRepository(BlankExercise)
+    private blankExerciseRepository: Repository<BlankExercise>,
+    @InjectRepository(Workbook)
+    private workbookRepository: Repository<Workbook>,
+  ) {}
+
+  async create(
+    createBlankExerciseDto: CreateBlankExerciseDto,
+    workbookId: number,
+  ): Promise<BlankExercise> {
+    try {
+      return await this.entityManager.transaction(
+        async (transactionalEntityManager) => {
+          // let blankExercise = new BlankExercise();
+          // Object.assign(blankExercise, createBlankExerciseDto);
+
+          // try saving like this instead of making new object
+          const blankExercise = await transactionalEntityManager.save(
+            BlankExercise,
+            createBlankExerciseDto,
+          );
+
+          let workbook = await transactionalEntityManager.findOne(Workbook, {
+            where: { id: workbookId },
+            relations: ['blankExercises'],
+          });
+          if (!workbook) {
+            throw new NotFoundException(
+              `Guide with id ${workbookId} not found`,
+            );
+          }
+          workbook.blankExercises.push(blankExercise);
+          await transactionalEntityManager.save(workbook);
+          return blankExercise;
+        },
+      );
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(
+        `Error creating exercise ${error.message}`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
   }
 
   findAll() {
