@@ -4,10 +4,12 @@ import { BlankExercisesController } from './blank-exercises.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BlankExercise } from './entities/blank-exercise.entity';
 import { Workbook } from 'src/workbooks/entities/workbook.entity';
-import { UserProgress } from 'src/user-progress/entities/user-progress.entity';
+import { BlankExerciseProgress } from 'src/blank-exercise-progress/entities/blank-exercise-progress.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([BlankExercise, Workbook, UserProgress])],
+  imports: [
+    TypeOrmModule.forFeature([BlankExercise, Workbook, BlankExerciseProgress]),
+  ],
   controllers: [BlankExercisesController],
   providers: [BlankExercisesService],
 })

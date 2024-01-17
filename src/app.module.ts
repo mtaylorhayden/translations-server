@@ -14,6 +14,8 @@ import { AuthModule } from './auth/auth.module';
 import { WorkbooksModule } from './workbooks/workbooks.module';
 import { BlankExercisesModule } from './blank-exercises/blank-exercises.module';
 import { UserProgressModule } from './user-progress/user-progress.module';
+import { WorkbookProgressModule } from './workbook-progress/workbook-progress.module';
+import { BlankExerciseProgressModule } from './blank-exercise-progress/blank-exercise-progress.module';
 
 @Module({
   imports: [
@@ -39,6 +41,8 @@ import { UserProgressModule } from './user-progress/user-progress.module';
     WorkbooksModule,
     BlankExercisesModule,
     UserProgressModule,
+    WorkbookProgressModule,
+    BlankExerciseProgressModule,
   ],
   controllers: [AppController],
   providers: [AppService],
