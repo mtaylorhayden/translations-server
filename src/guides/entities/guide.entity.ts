@@ -1,5 +1,6 @@
 import { Sentence } from 'src/sentences/entities/sentence.entity';
 import { Translation } from 'src/translations/entities/translation.entity';
+import { Workbook } from 'src/workbooks/entities/workbook.entity';
 import {
   Column,
   CreateDateColumn,
@@ -46,4 +47,7 @@ export class Guide {
     eager: true,
   })
   sentences: Sentence[];
+
+  @OneToMany(() => Workbook, (workbook) => workbook.guide)
+  workbooks: Workbook[];
 }
