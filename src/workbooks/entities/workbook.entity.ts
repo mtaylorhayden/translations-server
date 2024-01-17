@@ -27,7 +27,9 @@ export class Workbook {
   @ManyToOne(() => Guide, (guide) => guide.workbooks)
   guide: Guide;
 
-  @OneToMany(() => BlankExercise, (blankExercise) => blankExercise.workbook)
+  @OneToMany(() => BlankExercise, (blankExercise) => blankExercise.workbook, {
+    cascade: true,
+  })
   blankExercises: BlankExercise[];
 
   @OneToMany(
