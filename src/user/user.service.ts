@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -13,6 +13,19 @@ export class UserService {
   ) {}
   async create(registerDto: RegisterDto) {
     return await this.userRepository.save(registerDto);
+  }
+
+  async emailExists(userEmail: string): Promise<boolean> {
+    try {
+      const user = await this.userRepository.find({
+        where: { email: userEmail },
+      });
+      return !!user; // returns true if user exists, false otherwise
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'An error occured while checking the email',
+      );
+    }
   }
 
   findAll() {

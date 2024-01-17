@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
 import { RegisterDto } from './dto/register.dto';
@@ -14,27 +18,43 @@ export class AuthService {
   async signIn(username: string, password: string): Promise<any> {
     const user = await this.userServices.findOne(username);
     if (!user) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Invalid Credentials');
     }
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Invalid Credentials');
     }
     const payload = { sub: user.id, username: user.username, role: user.role };
     return {
       access_token: await this.jwtService.signAsync(payload, {
         secret: process.env.SECRET,
       }),
+      role: user.role,
     };
   }
 
   async register(registerDto: RegisterDto) {
+    const userExists = await this.userServices.emailExists(registerDto.email);
+    if (userExists) {
+      throw new BadRequestException('Email is already registered');
+    }
     const hashedPassword = await this.hashPassword(registerDto.password);
     const createdUser = await this.userServices.create({
       ...registerDto,
       password: hashedPassword,
     });
-    return createdUser;
+    // generate token to auto sign-in user
+    const payload = {
+      sub: createdUser.id,
+      username: createdUser.username,
+      role: createdUser.role,
+    };
+    return {
+      access_token: await this.jwtService.signAsync(payload, {
+        secret: process.env.SECRET,
+      }),
+      role: createdUser.role,
+    };
   }
 
   async hashPassword(password: string): Promise<string> {
