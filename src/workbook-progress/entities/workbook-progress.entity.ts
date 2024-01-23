@@ -1,18 +1,37 @@
+import { Status } from 'src/blank-exercise-progress/status-enum/status.enum';
 import { UserProgress } from 'src/user-progress/entities/user-progress.entity';
 import { Workbook } from 'src/workbooks/entities/workbook.entity';
-import { Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class WorkbookProgress {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToMany(
+  @Column({
+    type: 'enum',
+    enum: Status,
+    default: Status.NOT_STARTED,
+  })
+  status: Status;
+
+  @Column('decimal', { precision: 5, scale: 2, default: 0 })
+  percentageFinished: number;
+
+  // one workbookProgress can belong to many userProgress
+  @ManyToOne(
     () => UserProgress,
     (userProgress) => userProgress.workbookProgress,
   )
   userProgress: UserProgress;
 
+  // One workbook can belong to many workbookProgress
   @ManyToOne(() => Workbook, (workbook) => workbook.workbookProgress)
-  workbook: Workbook[];
+  workbook: Workbook;
 }

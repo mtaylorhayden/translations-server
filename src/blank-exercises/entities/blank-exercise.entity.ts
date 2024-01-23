@@ -23,11 +23,13 @@ export class BlankExercise {
   @Column({ default: false })
   isComplete: boolean;
 
+  // One blankExercise can belong to many blankExerciseProgress
   @OneToMany(
     () => BlankExerciseProgress,
-    (blankExerciseProgress) => blankExerciseProgress.blankExercises,
+    (blankExerciseProgress) => blankExerciseProgress.blankExercise,
+    { cascade: true },
   )
-  blankExerciseProgress: BlankExerciseProgress;
+  blankExerciseProgress: BlankExerciseProgress[];
 
   @ManyToOne(() => Workbook, (workbook) => workbook.blankExercises)
   workbook: Workbook[];

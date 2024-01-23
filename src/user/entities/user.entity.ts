@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -38,6 +39,6 @@ export class User {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @OneToOne(() => UserProgress, (userProgress) => userProgress.user)
-  userProgress: UserProgress;
+  @OneToMany(() => UserProgress, (userProgress) => userProgress.user)
+  userProgress: UserProgress[];
 }

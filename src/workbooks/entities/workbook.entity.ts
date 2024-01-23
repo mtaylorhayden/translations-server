@@ -32,9 +32,11 @@ export class Workbook {
   })
   blankExercises: BlankExercise[];
 
+  // One workbook can belong to many workbookProgress
   @OneToMany(
     () => WorkbookProgress,
     (workbookProgress) => workbookProgress.workbook,
+    { cascade: true },
   )
-  workbookProgress: WorkbookProgress;
+  workbookProgress: WorkbookProgress[];
 }

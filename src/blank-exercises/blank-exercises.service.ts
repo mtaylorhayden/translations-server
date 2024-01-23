@@ -28,9 +28,6 @@ export class BlankExercisesService {
     try {
       return await this.entityManager.transaction(
         async (transactionalEntityManager) => {
-          // let blankExercise = new BlankExercise();
-          // Object.assign(blankExercise, createBlankExerciseDto);
-
           // try saving like this instead of making new object
           const blankExercise = await transactionalEntityManager.save(
             BlankExercise,

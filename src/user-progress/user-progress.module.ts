@@ -6,6 +6,8 @@ import { UserProgress } from './entities/user-progress.entity';
 import { User } from 'src/user/entities/user.entity';
 import { WorkbookProgress } from 'src/workbook-progress/entities/workbook-progress.entity';
 import { BlankExerciseProgress } from 'src/blank-exercise-progress/entities/blank-exercise-progress.entity';
+import { Workbook } from 'src/workbooks/entities/workbook.entity';
+import { BlankExercise } from 'src/blank-exercises/entities/blank-exercise.entity';
 
 @Module({
   imports: [
@@ -13,6 +15,8 @@ import { BlankExerciseProgress } from 'src/blank-exercise-progress/entities/blan
       UserProgress,
       BlankExerciseProgress,
       WorkbookProgress,
+      Workbook,
+      BlankExercise,
       User,
     ]),
   ],

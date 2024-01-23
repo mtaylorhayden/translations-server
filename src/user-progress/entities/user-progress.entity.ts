@@ -1,4 +1,5 @@
 import { BlankExerciseProgress } from 'src/blank-exercise-progress/entities/blank-exercise-progress.entity';
+import { Status } from 'src/blank-exercise-progress/status-enum/status.enum';
 import { BlankExercise } from 'src/blank-exercises/entities/blank-exercise.entity';
 import { User } from 'src/user/entities/user.entity';
 import { WorkbookProgress } from 'src/workbook-progress/entities/workbook-progress.entity';
@@ -21,22 +22,28 @@ export class UserProgress {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   progressDate: Date;
 
-  @Column() // todo, make enum for
-  status: string;
+  @Column({ default: 0 }) // we can use progressdate, see if progressDate was yesterday => +1
+  streak: number;
 
+  // each userProgress can track many workbookProgress
+  @JoinColumn()
   @ManyToOne(
     () => WorkbookProgress,
     (workbookProgress) => workbookProgress.userProgress,
   )
   workbookProgress: WorkbookProgress;
 
+  // each userProgress can track many blankExerciseProgress
+  @JoinColumn()
   @ManyToOne(
     () => BlankExerciseProgress,
     (blankExerciseProgress) => blankExerciseProgress.userProgress,
   )
-  blankExerciseProgress: BlankExerciseProgress[];
+  blankExerciseProgress: BlankExerciseProgress;
 
-  @OneToOne(() => User, (user) => user.userProgress)
+  // many userProgresses can belong to one user
+  // a user can have multiple progresses,
+  @ManyToOne(() => User, (user) => user.userProgress)
   @JoinColumn()
   user: User;
 }
