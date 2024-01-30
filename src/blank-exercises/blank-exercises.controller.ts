@@ -30,6 +30,12 @@ export class BlankExercisesController {
     );
   }
 
+  @Public()
+  @Get('/workbook/:workbookId')
+  findAllByWorkbookId(@Param('workbookId') workbookId: string) {
+    return this.blankExercisesService.findAllByWorkbookId(+workbookId);
+  }
+
   @Get()
   findAll() {
     return this.blankExercisesService.findAll();

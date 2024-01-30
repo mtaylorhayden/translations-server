@@ -25,7 +25,7 @@ export class WorkbookProgress {
   percentageFinished: number;
 
   // one workbookProgress can belong to many userProgress
-  @ManyToOne(
+  @OneToMany(
     () => UserProgress,
     (userProgress) => userProgress.workbookProgress,
   )

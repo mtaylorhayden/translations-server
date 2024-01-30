@@ -21,6 +21,26 @@ export class BlankExercisesService {
     private workbookRepository: Repository<Workbook>,
   ) {}
 
+  async findAllByWorkbookId(workbookId: number) {
+    try {
+      const workbook = await this.workbookRepository.findOne({
+        where: { id: workbookId },
+        relations: ['blankExercises'],
+      });
+      if (!workbook) {
+        throw new NotFoundException(`Guide with id ${workbookId} not found`);
+      }
+      return workbook.blankExercises;
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(
+        `Error finding exercises for workbook id: ${workbookId}. Error: ${error.message}`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    throw new Error('Method not implemented.');
+  }
+
   async create(
     createBlankExerciseDto: CreateBlankExerciseDto,
     workbookId: number,

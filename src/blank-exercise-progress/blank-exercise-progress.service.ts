@@ -16,7 +16,12 @@ export class BlankExerciseProgressService {
     return `This action returns a #${id} blankExerciseProgress`;
   }
 
-  update(id: number, updateBlankExerciseProgressDto: UpdateBlankExerciseProgressDto) {
+  // we can find the exercise by the progressExcercise ID TODO
+  // update the exercise progress status
+  update(
+    id: number,
+    updateBlankExerciseProgressDto: UpdateBlankExerciseProgressDto,
+  ) {
     return `This action updates a #${id} blankExerciseProgress`;
   }
 
