@@ -53,8 +53,16 @@ export class WorkbooksService {
     }
   }
 
-  findAll() {
-    return `This action returns all workbooks`;
+  async findAll(): Promise<Workbook[]> {
+    try {
+      return await this.workbookRepository.find();
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(
+        `Error finding workbooks ${error.message}`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
   }
 
   findOne(id: number) {

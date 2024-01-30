@@ -11,6 +11,7 @@ import { WorkbooksService } from './workbooks.service';
 import { CreateWorkbookDto } from './dto/create-workbook.dto';
 import { UpdateWorkbookDto } from './dto/update-workbook.dto';
 import { Public } from 'src/auth/decorators/public.decorator';
+import { Workbook } from './entities/workbook.entity';
 
 @Controller('workbooks')
 export class WorkbooksController {
@@ -24,8 +25,9 @@ export class WorkbooksController {
     return result;
   }
 
+  @Public()
   @Get()
-  findAll() {
+  findAll(): Promise<Workbook[]> {
     return this.workbooksService.findAll();
   }
 
