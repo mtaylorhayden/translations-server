@@ -12,7 +12,7 @@ import { Status } from '../status-enum/status.enum';
 @Entity()
 export class BlankExerciseProgress {
   @PrimaryGeneratedColumn()
-  id: string;
+  id: number;
 
   @Column({
     type: 'enum',
