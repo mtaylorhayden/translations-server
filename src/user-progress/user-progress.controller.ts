@@ -16,17 +16,18 @@ import { Public } from 'src/auth/decorators/public.decorator';
 export class UserProgressController {
   constructor(private readonly userProgressService: UserProgressService) {}
 
+  // we don't need an exerciseID, we can get it from the workbook
   @Public()
-  @Post('/workbookId/:workbookId/blankExerciseId/:blankExerciseId')
+  @Post('/workbookId/:workbookId')
   create(
     @Body() createUserProgressDto: CreateUserProgressDto,
     @Param('workbookId') workbookId: string, // to create the workbook progress
-    @Param('blankExerciseId') blankExerciseId: string, // to create exercise progress
+    // @Param('blankExerciseId') blankExerciseId: string, // to create exercise progress
   ) {
     let userProgress = this.userProgressService.create(
       createUserProgressDto,
-      +workbookId,
-      +blankExerciseId,
+      +workbookId
+      // +blankExerciseId,
     );
     return userProgress;
   }

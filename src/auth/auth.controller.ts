@@ -43,14 +43,15 @@ export class AuthController {
   }
 
   @Public()
+  @HttpCode(HttpStatus.OK)
   @Post('/register')
   async register(@Body() registerDto: RegisterDto, @Res() response: Response) {
     const { access_token, role } = await this.authService.register(registerDto);
-    response.cookie('jwt', access_token, { httpOnly: true, secure: false });
-    return {
-      message: 'Authenciation Successful',
-      role,
-    };
+    response.cookie('jwt', access_token, {
+      httpOnly: true,
+      secure: false,
+    });
+    response.send({ message: 'User creation Successful', role });
   }
 
   @Get('/refreshToken')

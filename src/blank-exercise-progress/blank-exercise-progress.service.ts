@@ -55,7 +55,6 @@ export class BlankExerciseProgressService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    return `This action updates a #${id} blankExerciseProgress`;
   }
 
   remove(id: number) {

@@ -20,7 +20,7 @@ export class UserService {
       const user = await this.userRepository.find({
         where: { email: userEmail },
       });
-      return !!user; // returns true if user exists, false otherwise
+      return user.length > 0; // returns true if user exists, false otherwise
     } catch (error) {
       throw new InternalServerErrorException(
         'An error occured while checking the email',

@@ -32,6 +32,8 @@ export class WorkbookProgress {
   userProgress: UserProgress;
 
   // One workbook can belong to many workbookProgress
-  @ManyToOne(() => Workbook, (workbook) => workbook.workbookProgress)
+  @ManyToOne(() => Workbook, (workbook) => workbook.workbookProgress, {
+    eager: true,
+  })
   workbook: Workbook;
 }

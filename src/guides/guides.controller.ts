@@ -17,13 +17,15 @@ import { UpdateResult } from 'typeorm';
 import { Guide } from './entities/guide.entity';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
+import { Public } from 'src/auth/decorators/public.decorator';
 
 @UseGuards(RolesGuard)
 @Controller('guides')
 export class GuidesController {
   constructor(private readonly guidesService: GuidesService) {}
 
-  @Roles('admin')
+  // @Roles('admin')
+  @Public()
   @Post()
   create(
     @Body() createFullGuideDto: CreateFullGuideDto,
