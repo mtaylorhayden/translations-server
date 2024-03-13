@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Res,
 } from '@nestjs/common';
 import { WorkbooksService } from './workbooks.service';
 import { CreateWorkbookDto } from './dto/create-workbook.dto';
@@ -17,7 +18,6 @@ import { Workbook } from './entities/workbook.entity';
 export class WorkbooksController {
   constructor(private readonly workbooksService: WorkbooksService) {}
 
-  @Public()
   @Post()
   create(@Body() createWorkbookDto: CreateWorkbookDto) {
     const result = this.workbooksService.create(createWorkbookDto);
@@ -25,7 +25,6 @@ export class WorkbooksController {
     return result;
   }
 
-  @Public()
   @Get()
   findAll(): Promise<Workbook[]> {
     return this.workbooksService.findAll();

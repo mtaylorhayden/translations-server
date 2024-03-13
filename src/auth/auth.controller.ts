@@ -26,7 +26,6 @@ export class AuthController {
   ) {}
 
   @Public()
-  @HttpCode(HttpStatus.OK)
   @Post('signIn')
   async signIn(@Body() signInDto: SignInDto, @Res() response: Response) {
     const { access_token, role } = await this.authService.signIn(
@@ -34,16 +33,15 @@ export class AuthController {
       signInDto.password,
     );
     response.cookie('jwt', access_token, {
-      httpOnly: true,
-      domain: '.localhost',
+      sameSite: 'lax',
       path: '/',
-      secure: false,
+      secure: true,
+      httpOnly: true,
     });
-    response.send({ message: 'Authenciation Successful', role });
+    return response.send({ message: 'Authenciation Successful', role });
   }
 
   @Public()
-  @HttpCode(HttpStatus.OK)
   @Post('/register')
   async register(@Body() registerDto: RegisterDto, @Res() response: Response) {
     const { access_token, role } = await this.authService.register(registerDto);
