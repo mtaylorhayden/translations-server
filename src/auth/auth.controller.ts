@@ -17,6 +17,7 @@ import { JwtValidation } from './middleware/jwtValidation';
 import { Response } from 'express';
 import { User } from 'src/user/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
+import { ForgotPasswordDto } from './dto/forgotPassword.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -46,16 +47,24 @@ export class AuthController {
   async register(@Body() registerDto: RegisterDto, @Res() response: Response) {
     const { access_token, role } = await this.authService.register(registerDto);
     response.cookie('jwt', access_token, {
+      sameSite: 'lax',
+      path: '/',
+      secure: true,
       httpOnly: true,
-      secure: false,
     });
     response.send({ message: 'User creation Successful', role });
+  }
+
+  @Public()
+  @Post('/passwordReset')
+  async passwordReset(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    this.authService.sendPasswordReset(forgotPasswordDto.email);
   }
 
   @Get('/refreshToken')
   @UseGuards(JwtValidation)
   async refreshToken(@Request() req) {
-    const user: User = req.user; // extract user from token
+    const user: User = req.user;
     const newPayload = {
       sub: user.id,
       username: user.username,

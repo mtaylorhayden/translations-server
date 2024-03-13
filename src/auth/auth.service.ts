@@ -7,12 +7,14 @@ import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
 import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userServices: UserService,
     private jwtService: JwtService,
+    private readonly mailerService: MailerService,
   ) {}
 
   async signIn(username: string, password: string): Promise<any> {
@@ -62,6 +64,21 @@ export class AuthService {
     const salt = await bcrypt.genSalt(saltRounds);
     const hashedPassword = await bcrypt.hash(password, salt);
     return hashedPassword;
+  }
+
+  async sendPasswordReset(email: string) {
+    this.mailerService
+      .sendMail({
+        to: email,
+        from: 'noreply@nest.com',
+        subject: 'Testing',
+        text: 'welcome to our site',
+        html: '<p>Seni seviyorum <3</p>',
+      })
+      .then(() => {})
+      .catch((e) => {
+        console.log('error in email ', e);
+      });
   }
 
   async refreshToken(user: any) {
