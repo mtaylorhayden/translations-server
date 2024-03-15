@@ -27,6 +27,15 @@ export class UserService {
     return this.userRepository.findOne({ where: { email } });
   }
 
+  async updatePassword(user: User, hashedPassword: string) {
+    return await this.userRepository
+      .createQueryBuilder()
+      .update(User)
+      .set({ password: hashedPassword })
+      .where('id = :id', { id: user.id })
+      .execute();
+  }
+
   update(id: number, updateUserDto: UpdateUserDto) {
     return `This action updates a #${id} user`;
   }

@@ -63,11 +63,11 @@ export class AuthController {
   }
 
   // use this to change the users password
-  @UseGuards(JwtValidation)
+  @Public()
   @Post('/passwordReset')
   async passwordReset(@Body() forgotPasswordDto: ForgotPasswordDto) {
-    const { email, password } = forgotPasswordDto;
-    this.authService.resetPassword(email, password);
+    const { password, token } = forgotPasswordDto;
+    this.authService.resetPassword(password, token);
   }
 
   @Get('/refreshToken')

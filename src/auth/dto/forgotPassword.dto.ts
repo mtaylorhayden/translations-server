@@ -9,8 +9,7 @@ import {
 export class ForgotPasswordDto {
   @IsString()
   @IsNotEmpty()
-  @IsEmail()
-  email: string;
+  userId: string;
 
   @IsNotEmpty()
   @IsString()
