@@ -18,6 +18,7 @@ import { Response } from 'express';
 import { User } from 'src/user/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { ForgotPasswordDto } from './dto/forgotPassword.dto';
+import { EmailDto } from './dto/email.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -56,9 +57,17 @@ export class AuthController {
   }
 
   @Public()
+  @Post('/forgotPassword')
+  async forgotPassword(@Body() emailObject: EmailDto) {
+    this.authService.sendResetPasswordEmail(emailObject.email);
+  }
+
+  // use this to change the users password
+  @UseGuards(JwtValidation)
   @Post('/passwordReset')
   async passwordReset(@Body() forgotPasswordDto: ForgotPasswordDto) {
-    this.authService.sendPasswordReset(forgotPasswordDto.email);
+    const { email, password } = forgotPasswordDto;
+    this.authService.resetPassword(email, password);
   }
 
   @Get('/refreshToken')

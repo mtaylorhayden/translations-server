@@ -6,6 +6,8 @@ import { AuthGuard } from './guards/auth.guard';
 import { UserModule } from 'src/user/user.module';
 import { RolesGuard } from './guards/roles.guard';
 import { JwtValidation } from './middleware/jwtValidation';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Token } from './entities/token.entity';
 
 @Module({
   imports: [
@@ -15,6 +17,7 @@ import { JwtValidation } from './middleware/jwtValidation';
       secret: process.env.SECRET,
       signOptions: { expiresIn: '600s' },
     }),
+    TypeOrmModule.forFeature([Token]),
   ],
   providers: [AuthService, AuthGuard, RolesGuard, JwtValidation],
   controllers: [AuthController],

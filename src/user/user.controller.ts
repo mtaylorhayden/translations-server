@@ -31,10 +31,11 @@ export class UserController {
     return this.userService.findAll();
   }
 
-  @Get()
-  findOne(@Body() username: string): Promise<User | undefined> {
-    return this.userService.findOne(username);
-  }
+  // todo
+  // @Get()
+  // findOne(@Body() username: string): Promise<User | undefined> {
+  //   return this.userService.findOne(username);
+  // }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {

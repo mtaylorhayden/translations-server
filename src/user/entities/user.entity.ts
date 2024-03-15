@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { rolesEnum } from '../roles/rolesEnum';
 import { UserProgress } from 'src/user-progress/entities/user-progress.entity';
+import { Token } from 'src/auth/entities/token.entity';
 
 @Entity()
 export class User {
@@ -41,4 +42,7 @@ export class User {
 
   @OneToMany(() => UserProgress, (userProgress) => userProgress.user)
   userProgress: UserProgress[];
+
+  @OneToMany(() => Token, (token) => token.user)
+  token: Token[];
 }
