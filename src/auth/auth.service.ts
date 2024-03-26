@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   Injectable,
-  InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -34,13 +33,7 @@ export class AuthService {
     if (!passwordMatch) {
       throw new UnauthorizedException('Invalid Credentials');
     }
-    const payload = { sub: user.id, username: user.username, role: user.role };
-    return {
-      access_token: await this.jwtService.signAsync(payload, {
-        secret: process.env.SECRET,
-      }),
-      role: user.role,
-    };
+    return await this.generateAccessToken(user);
   }
 
   async register(registerDto: RegisterDto) {
@@ -53,18 +46,7 @@ export class AuthService {
       ...registerDto,
       password: hashedPassword,
     });
-    // generate token to auto sign-in user
-    const payload = {
-      sub: createdUser.id,
-      username: createdUser.username,
-      role: createdUser.role,
-    };
-    return {
-      access_token: await this.jwtService.signAsync(payload, {
-        secret: process.env.SECRET,
-      }),
-      role: createdUser.role,
-    };
+    return await this.generateAccessToken(createdUser);
   }
 
   async hashPassword(password: string): Promise<string> {
@@ -91,9 +73,7 @@ export class AuthService {
       });
     } catch (error) {
       console.error(error);
-      throw new InternalServerErrorException(
-        'An error occured when sending the email in sendResetPasswordEmail, auth.service.ts',
-      );
+      throw error;
     }
   }
 
@@ -107,15 +87,30 @@ export class AuthService {
       const user = await this.userService.findOneByEmail(
         tokenEntity.user.email,
       );
+
       this.userService.updatePassword(user, hashedPassword);
 
-      // return valid jwt token
+      return await this.generateAccessToken(user);
     } catch (error) {
-      console.error('An error has occured when resetting the password ', error);
+      throw error;
     }
   }
 
-  generateToken(): string {
+  async generateAccessToken(user: User) {
+    const payload = {
+      sub: user.id,
+      username: user.username,
+      role: user.role,
+    };
+    return {
+      access_token: await this.jwtService.signAsync(payload, {
+        secret: process.env.SECRET,
+      }),
+      role: user.role,
+    };
+  }
+
+  generateTokenForEmail(): string {
     const rawToken = crypto.randomBytes(32).toString('base64');
     // Replace '+' with '-', '/' with '_', and remove '=' padding characters for URL safety
     return rawToken.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -126,7 +121,7 @@ export class AuthService {
     tokenEntity.user = user;
     tokenEntity.expiresAt = new Date(new Date().getTime() + 5 * 60000);
     tokenEntity.isUsed = false;
-    tokenEntity.token = this.generateToken();
+    tokenEntity.token = this.generateTokenForEmail();
     return this.tokenRepository.save(tokenEntity);
   }
 

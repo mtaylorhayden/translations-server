@@ -2,8 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  HttpCode,
-  HttpStatus,
   Post,
   Request,
   Res,
@@ -56,18 +54,40 @@ export class AuthController {
     response.send({ message: 'User creation Successful', role });
   }
 
+  // use this to send the reset password email
   @Public()
   @Post('/forgotPassword')
   async forgotPassword(@Body() emailObject: EmailDto) {
-    this.authService.sendResetPasswordEmail(emailObject.email);
+    try {
+      await this.authService.sendResetPasswordEmail(emailObject.email);
+    } catch (error) {
+      throw error;
+    }
   }
 
   // use this to change the users password
   @Public()
   @Post('/passwordReset')
-  async passwordReset(@Body() forgotPasswordDto: ForgotPasswordDto) {
+  async passwordReset(
+    @Body() forgotPasswordDto: ForgotPasswordDto,
+    @Res() response: Response,
+  ) {
     const { password, token } = forgotPasswordDto;
-    this.authService.resetPassword(password, token);
+    try {
+      const { access_token, role } = await this.authService.resetPassword(
+        password,
+        token,
+      );
+      response.cookie('jwt', access_token, {
+        sameSite: 'lax',
+        path: '/',
+        secure: true,
+        httpOnly: true,
+      });
+      return response.send({ message: 'Authenciation Successful', role });
+    } catch (error) {
+      throw error;
+    }
   }
 
   @Get('/refreshToken')
