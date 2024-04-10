@@ -1,4 +1,4 @@
-import { Status } from 'src/blank-exercise-progress/status-enum/status.enum';
+import { Status } from 'src/blank-exercise-progress/enums/status.enum';
 import { UserProgress } from 'src/user-progress/entities/user-progress.entity';
 import { Workbook } from 'src/workbooks/entities/workbook.entity';
 import {

@@ -1,5 +1,5 @@
 import { BlankExerciseProgress } from 'src/blank-exercise-progress/entities/blank-exercise-progress.entity';
-import { Status } from 'src/blank-exercise-progress/status-enum/status.enum';
+import { Status } from 'src/blank-exercise-progress/enums/status.enum';
 import { BlankExercise } from 'src/blank-exercises/entities/blank-exercise.entity';
 import { User } from 'src/user/entities/user.entity';
 import { WorkbookProgress } from 'src/workbook-progress/entities/workbook-progress.entity';

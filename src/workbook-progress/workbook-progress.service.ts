@@ -4,7 +4,7 @@ import { UpdateWorkbookProgressDto } from './dto/update-workbook-progress.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { WorkbookProgress } from './entities/workbook-progress.entity';
 import { Repository } from 'typeorm';
-import { Status } from 'src/blank-exercise-progress/status-enum/status.enum';
+import { Status } from 'src/blank-exercise-progress/enums/status.enum';
 import { BlankExercise } from 'src/blank-exercises/entities/blank-exercise.entity';
 
 @Injectable()

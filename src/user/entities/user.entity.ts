@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { rolesEnum } from '../roles/rolesEnum';
+import { Roles } from '../roles/roles.enum';
 import { UserProgress } from 'src/user-progress/entities/user-progress.entity';
 import { Token } from 'src/auth/entities/token.entity';
 
@@ -31,8 +31,8 @@ export class User {
   @Column()
   password: string;
 
-  @Column({ default: rolesEnum.USER })
-  role: rolesEnum;
+  @Column({ default: Roles.USER })
+  role: Roles;
 
   @CreateDateColumn()
   createdAt: Date;

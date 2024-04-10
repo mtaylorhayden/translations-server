@@ -11,7 +11,7 @@ import { Workbook } from 'src/workbooks/entities/workbook.entity';
 import { EntityManager, Repository } from 'typeorm';
 import { WorkbookProgress } from 'src/workbook-progress/entities/workbook-progress.entity';
 import { BlankExerciseProgress } from 'src/blank-exercise-progress/entities/blank-exercise-progress.entity';
-import { Status } from 'src/blank-exercise-progress/status-enum/status.enum';
+import { Status } from 'src/blank-exercise-progress/enums/status.enum';
 import { BlankExercise } from 'src/blank-exercises/entities/blank-exercise.entity';
 import { UserProgress } from './entities/user-progress.entity';
 import { User } from 'src/user/entities/user.entity';

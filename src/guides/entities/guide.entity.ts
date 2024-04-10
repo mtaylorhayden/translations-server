@@ -9,11 +9,15 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Level } from '../enums/level.enum';
 
 @Entity()
 export class Guide {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column()
+  level: Level;
 
   @Column()
   title: string;

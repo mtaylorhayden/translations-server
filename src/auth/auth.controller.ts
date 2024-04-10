@@ -35,7 +35,7 @@ export class AuthController {
     response.cookie('jwt', access_token, {
       sameSite: 'lax',
       path: '/',
-      secure: true,
+      // secure: true,
       httpOnly: true,
     });
     return response.send({ message: 'Authenciation Successful', role });

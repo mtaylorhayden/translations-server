@@ -1,7 +1,7 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateBlankExerciseProgressDto } from './create-blank-exercise-progress.dto';
 import { IsEnum } from 'class-validator';
-import { Status } from '../status-enum/status.enum';
+import { Status } from '../enums/status.enum';
 
 export class UpdateBlankExerciseProgressDto extends PartialType(
   CreateBlankExerciseProgressDto,
