@@ -34,6 +34,7 @@ export class WorkbookProgress {
   // One workbook can belong to many workbookProgress
   @ManyToOne(() => Workbook, (workbook) => workbook.workbookProgress, {
     eager: true,
+    onDelete: 'CASCADE',
   })
   workbook: Workbook;
 }
