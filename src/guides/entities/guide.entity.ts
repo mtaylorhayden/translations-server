@@ -22,10 +22,10 @@ export class Guide {
   @Column()
   title: string;
 
-  @Column()
+  @Column('longtext')
   description: string;
 
-  @Column({ nullable: true })
+  @Column('longtext', { nullable: true })
   subDescription: string;
 
   @Column()
