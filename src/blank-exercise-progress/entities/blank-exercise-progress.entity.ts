@@ -7,7 +7,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Status } from '../status-enum/status.enum';
+import { Status } from '../enums/status.enum';
 
 @Entity()
 export class BlankExerciseProgress {

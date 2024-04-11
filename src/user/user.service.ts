@@ -1,5 +1,4 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
@@ -15,25 +14,26 @@ export class UserService {
     return await this.userRepository.save(registerDto);
   }
 
-  async emailExists(userEmail: string): Promise<boolean> {
-    try {
-      const user = await this.userRepository.find({
-        where: { email: userEmail },
-      });
-      return !!user; // returns true if user exists, false otherwise
-    } catch (error) {
-      throw new InternalServerErrorException(
-        'An error occured while checking the email',
-      );
-    }
-  }
-
   findAll() {
     return `This action returns all user`;
   }
 
-  findOne(username: string) {
+  // todo this doesn't work because username's aren't unique
+  findOneByUsername(username: string) {
     return this.userRepository.findOne({ where: { username } });
+  }
+
+  findOneByEmail(email: string): Promise<User> {
+    return this.userRepository.findOne({ where: { email } });
+  }
+
+  async updatePassword(user: User, hashedPassword: string) {
+    return await this.userRepository
+      .createQueryBuilder()
+      .update(User)
+      .set({ password: hashedPassword })
+      .where('id = :id', { id: user.id })
+      .execute();
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {

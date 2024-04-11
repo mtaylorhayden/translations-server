@@ -5,11 +5,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { UserProgress } from 'src/user-progress/entities/user-progress.entity';
+import { Token } from 'src/auth/entities/token.entity';
 
 @Module({
   controllers: [UserController],
   providers: [UserService, AuthGuard],
   exports: [UserService],
-  imports: [TypeOrmModule.forFeature([User, UserProgress])],
+  imports: [TypeOrmModule.forFeature([User, UserProgress, Token])],
 })
 export class UserModule {}

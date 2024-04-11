@@ -5,6 +5,8 @@ import { AuthGuard } from './auth/guards/auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
 import * as cookieParser from 'cookie-parser';
 import * as dotenv from 'dotenv';
+import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
+
 dotenv.config();
 
 async function bootstrap() {

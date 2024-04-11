@@ -72,6 +72,7 @@ export class GuidesService {
       if (guides.length) {
         return guides.map((guide) => ({
           id: guide.id,
+          level: guide.level,
           title: guide.title,
           description: guide.description,
           subDescription: guide?.subDescription,
@@ -98,6 +99,7 @@ export class GuidesService {
       return {
         id,
         title: guide.title,
+        level: guide.level,
         description: guide.description,
         subDescription: guide?.subDescription,
         examples: guide.examples,

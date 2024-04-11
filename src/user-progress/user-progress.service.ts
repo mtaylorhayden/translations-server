@@ -11,7 +11,7 @@ import { Workbook } from 'src/workbooks/entities/workbook.entity';
 import { EntityManager, Repository } from 'typeorm';
 import { WorkbookProgress } from 'src/workbook-progress/entities/workbook-progress.entity';
 import { BlankExerciseProgress } from 'src/blank-exercise-progress/entities/blank-exercise-progress.entity';
-import { Status } from 'src/blank-exercise-progress/status-enum/status.enum';
+import { Status } from 'src/blank-exercise-progress/enums/status.enum';
 import { BlankExercise } from 'src/blank-exercises/entities/blank-exercise.entity';
 import { UserProgress } from './entities/user-progress.entity';
 import { User } from 'src/user/entities/user.entity';
@@ -28,32 +28,32 @@ export class UserProgressService {
     private userRepository: Repository<User>,
   ) {}
 
-  // todo cannot create either progress correctly
   async create(
     createUserProgressDto: CreateUserProgressDto,
     workbookId: number,
-    blankExerciseId: number,
+    // blankExerciseId: number,
   ) {
     try {
       // find the objects need for creating userProgress
       let workbook = await this.getWorkbookById(workbookId);
-      let blankExercise = await this.getBlankExerciseById(blankExerciseId);
+      // let blankExercise = await this.getBlankExerciseById(blankExerciseId);
       let user = await this.getUserById(+createUserProgressDto.userId);
 
       // all database creates go in here for rollback
       return await this.entityManager.transaction(
         async (transactionalEntityManager) => {
-          // can we atleast create this?
-          let blankExerciseProgress = await this.createBlankExerciseProgress(
-            blankExercise,
-            transactionalEntityManager,
-          );
+          // now we have an array of exerciseProgresses
+          let blankExerciseProgresses: BlankExerciseProgress[] =
+            await this.createBlankExerciseProgress(
+              workbook.blankExercises,
+              transactionalEntityManager,
+            );
           let workbookProgress = await this.createWorkbookProgress(
             workbook,
             transactionalEntityManager,
           );
           return await this.createUserProgress(
-            blankExerciseProgress,
+            blankExerciseProgresses,
             workbookProgress,
             user,
             transactionalEntityManager,
@@ -81,16 +81,22 @@ export class UserProgressService {
   }
 
   async createUserProgress(
-    blankExerciseProgress: BlankExerciseProgress,
+    blankExerciseProgresses: BlankExerciseProgress[],
     workbookProgress: WorkbookProgress,
     user: User,
     transactionalEntityManager: EntityManager,
-  ): Promise<UserProgress> {
-    let userProgress = new UserProgress();
-    userProgress.blankExerciseProgress = blankExerciseProgress;
-    userProgress.workbookProgress = workbookProgress;
-    userProgress.user = user;
-    return await transactionalEntityManager.save(UserProgress, userProgress);
+  ): Promise<UserProgress[]> {
+    let userProgresses: UserProgress[] = [];
+    // we need to create a new userProgress for each blankExerciseProgress
+    blankExerciseProgresses.forEach(async (blankExerciseProgress) => {
+      let userProgress = new UserProgress();
+      userProgress.blankExerciseProgress = blankExerciseProgress;
+      userProgress.workbookProgress = workbookProgress;
+      userProgress.user = user;
+      await transactionalEntityManager.save(UserProgress, userProgress);
+      userProgresses.push(userProgress);
+    });
+    return userProgresses;
   }
 
   async getBlankExerciseById(blankExerciseId: number) {
@@ -107,18 +113,27 @@ export class UserProgressService {
   }
 
   async createBlankExerciseProgress(
-    blankExercise: BlankExercise,
+    blankExercises: BlankExercise[],
     transactionalEntityManager: EntityManager,
-  ): Promise<BlankExerciseProgress> {
-    let blankExerciseProgress: BlankExerciseProgress =
-      new BlankExerciseProgress();
-    blankExerciseProgress.status = Status.IN_PROGRESS;
-    blankExerciseProgress.blankExercise = blankExercise;
+  ): Promise<BlankExerciseProgress[]> {
+    let blankExerciseProgresses: BlankExerciseProgress[] = [];
 
-    return await transactionalEntityManager.save(
-      BlankExerciseProgress,
-      blankExerciseProgress,
-    );
+    // create a progress for each blank exercise
+    blankExercises.forEach(async (blankExercise, index) => {
+      let blankExerciseProgress: BlankExerciseProgress =
+        new BlankExerciseProgress();
+      if (index === 0) {
+        blankExerciseProgress.status = Status.IN_PROGRESS;
+      }
+      blankExerciseProgress.status = Status.NOT_STARTED;
+      blankExerciseProgress.blankExercise = blankExercise;
+      await transactionalEntityManager.save(
+        BlankExerciseProgress,
+        blankExerciseProgress,
+      );
+      blankExerciseProgresses.push(blankExerciseProgress);
+    });
+    return blankExerciseProgresses;
   }
 
   async createWorkbookProgress(

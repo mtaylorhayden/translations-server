@@ -29,6 +29,7 @@ export class Workbook {
 
   @OneToMany(() => BlankExercise, (blankExercise) => blankExercise.workbook, {
     cascade: true,
+    eager: true,
   })
   blankExercises: BlankExercise[];
 

@@ -9,6 +9,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Level } from '../enums/level.enum';
 
 @Entity()
 export class Guide {
@@ -16,12 +17,15 @@ export class Guide {
   id: number;
 
   @Column()
-  title: string;
+  level: Level;
 
   @Column()
+  title: string;
+
+  @Column('longtext')
   description: string;
 
-  @Column({ nullable: true })
+  @Column('longtext', { nullable: true })
   subDescription: string;
 
   @Column()

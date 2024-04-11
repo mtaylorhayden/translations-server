@@ -7,8 +7,9 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { rolesEnum } from '../roles/rolesEnum';
+import { Roles } from '../roles/roles.enum';
 import { UserProgress } from 'src/user-progress/entities/user-progress.entity';
+import { Token } from 'src/auth/entities/token.entity';
 
 @Entity()
 export class User {
@@ -30,8 +31,8 @@ export class User {
   @Column()
   password: string;
 
-  @Column({ default: rolesEnum.USER })
-  role: rolesEnum;
+  @Column({ default: Roles.USER })
+  role: Roles;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -41,4 +42,7 @@ export class User {
 
   @OneToMany(() => UserProgress, (userProgress) => userProgress.user)
   userProgress: UserProgress[];
+
+  @OneToMany(() => Token, (token) => token.user)
+  token: Token[];
 }
