@@ -99,4 +99,39 @@ describe('GuidesController', () => {
     // act and assert Execute the function under test, Check that the function behaved as expected.
     expect(guidesController.findAll()).rejects.toThrow(mockHttpException);
   });
+
+  it('should get a single guide', async () => {
+    // arrange Set up any prerequisites for the test. This includes preparing data and setting up mocks.
+    const mockGuide = {
+      id: 1,
+      level: Level.A1,
+      title: 'title',
+      description: 'description',
+      subDescription: 'subDescription',
+      examples: 'examples',
+      sentences: [],
+      translations: [],
+    };
+    jest.spyOn(guidesService, 'findOne').mockResolvedValue(mockGuide);
+    // act Execute the function under test.
+    const result = await guidesController.findOne('1');
+
+    // assert Check that the function behaved as expected.
+    expect(result).toEqual(mockGuide);
+    expect(guidesService.findOne).toHaveBeenCalledWith(1);
+  });
+
+  it('should fail to get a single guide', async () => {
+    // arrange Set up any prerequisites for the test. This includes preparing data and setting up mocks.
+    const mockHttpException = new HttpException(
+      'Could not find guide with id: 110',
+      HttpStatus.NOT_FOUND,
+    );
+
+    jest.spyOn(guidesService, 'findOne').mockRejectedValue(mockHttpException);
+
+    // assert Check that the function behaved as expected.
+    expect(guidesController.findOne('100')).rejects.toThrow(mockHttpException);
+    expect(guidesService.findOne).toHaveBeenCalledWith(100);
+  });
 });
