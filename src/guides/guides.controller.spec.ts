@@ -10,6 +10,7 @@ import { GetGuideDto } from './dto/get-guide.dto';
 import { Level } from './enums/level.enum';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { CreateFullGuideDto } from './dto/create-full-guide.dto';
+import { UpdateGuideDto } from './dto/update-guide.dto';
 
 describe('GuidesController', () => {
   let guidesController: GuidesController;
@@ -179,5 +180,52 @@ describe('GuidesController', () => {
       mockHttpException,
     );
     expect(guidesService.create).toHaveBeenCalledWith(mockGuide);
+  });
+
+  it('should update a single guide', async () => {
+    // arrange Set up any prerequisites for the test. This includes preparing data and setting up mocks.
+    const mockGuide: UpdateGuideDto = {
+      level: Level.A1,
+      title: 'title',
+      description: 'description',
+      subDescription: 'subDescription',
+      examples: 'examples',
+      sentences: [],
+      translations: [],
+    };
+    jest.spyOn(guidesService, 'update').mockResolvedValue(mockGuide);
+
+    // act Execute the function under test.
+    const result = await guidesController.update('1', mockGuide);
+
+    // assert Check that the function behaved as expected.
+    expect(result).toEqual(mockGuide);
+    expect(guidesService.update).toHaveBeenCalledWith(1, mockGuide);
+  });
+
+  it('should fail to update a single guide', async () => {
+    // arrange Set up any prerequisites for the test. This includes preparing data and setting up mocks.
+    const mockGuide: UpdateGuideDto = {
+      level: Level.A1,
+      title: 'title',
+      description: 'description',
+      subDescription: 'subDescription',
+      examples: 'examples',
+      sentences: [],
+      translations: [],
+    };
+    const mockHttpException: HttpException = new HttpException(
+      'Could not update guide with id 110',
+      HttpStatus.BAD_REQUEST,
+    );
+    jest.spyOn(guidesService, 'update').mockRejectedValue(mockHttpException);
+
+    // act Execute the function under test.
+
+    // assert Check that the function behaved as expected.
+    await expect(guidesController.update('110', mockGuide)).rejects.toThrow(
+      mockHttpException,
+    );
+    expect(guidesService.update).toHaveBeenCalledWith(110, mockGuide);
   });
 });

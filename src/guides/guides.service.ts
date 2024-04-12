@@ -138,15 +138,7 @@ export class GuidesService {
       return await this.entityManager.transaction(
         async (transactionalEntityManager) => {
           // find the guide
-          const guide = await transactionalEntityManager.findOne(Guide, {
-            where: { id: id },
-          });
-          if (!guide) {
-            throw new HttpException(
-              `Could not find guide with id: ${id}`,
-              HttpStatus.NOT_FOUND,
-            );
-          }
+          const guide = await this.findGuide(id);
 
           // Delete the existing sentences
           if (updateGuideDto?.sentences?.length > 0) {
@@ -166,6 +158,7 @@ export class GuidesService {
         },
       );
     } catch (error) {
+      // if (error inst)
       throw new HttpException(
         `Could not update guide with id: ${id}`,
         HttpStatus.BAD_REQUEST,
