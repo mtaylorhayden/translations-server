@@ -8,6 +8,7 @@ import { Translation } from 'src/translations/entities/translation.entity';
 import { Sentence } from 'src/sentences/entities/sentence.entity';
 import { GetGuideDto } from './dto/get-guide.dto';
 import { Level } from './enums/level.enum';
+import { HttpException, HttpStatus } from '@nestjs/common';
 
 describe('GuidesController', () => {
   let guidesController: GuidesController;
@@ -84,5 +85,18 @@ describe('GuidesController', () => {
 
     // assert Check that the function behaved as expected.
     expect(result).toEqual(mockGuides);
+  });
+
+  it('should fail to get all guides', async () => {
+    // arrange Set up any prerequisites for the test. This includes preparing data and setting up mocks.
+    const mockHttpException = new HttpException(
+      'Error finding guides in the database',
+      HttpStatus.INTERNAL_SERVER_ERROR,
+    );
+
+    jest.spyOn(guidesService, 'findAll').mockRejectedValue(mockHttpException);
+
+    // act and assert Execute the function under test, Check that the function behaved as expected.
+    expect(guidesController.findAll()).rejects.toThrow(mockHttpException);
   });
 });
