@@ -9,6 +9,7 @@ import { Sentence } from 'src/sentences/entities/sentence.entity';
 import { GetGuideDto } from './dto/get-guide.dto';
 import { Level } from './enums/level.enum';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { CreateFullGuideDto } from './dto/create-full-guide.dto';
 
 describe('GuidesController', () => {
   let guidesController: GuidesController;
@@ -133,5 +134,50 @@ describe('GuidesController', () => {
     // assert Check that the function behaved as expected.
     expect(guidesController.findOne('100')).rejects.toThrow(mockHttpException);
     expect(guidesService.findOne).toHaveBeenCalledWith(100);
+  });
+
+  it('should create a single guide', async () => {
+    // arrange Set up any prerequisites for the test. This includes preparing data and setting up mocks.
+    const mockGuide: CreateFullGuideDto = {
+      level: Level.A1,
+      title: 'title',
+      description: 'description',
+      subDescription: 'subDescription',
+      examples: 'examples',
+      sentences: [],
+      translations: [],
+    };
+    jest.spyOn(guidesService, 'create').mockResolvedValue(mockGuide);
+
+    // act Execute the function under test.
+    const result = await guidesController.create(mockGuide);
+
+    // assert Check that the function behaved as expected.
+    expect(result).toEqual(mockGuide);
+    expect(guidesService.create).toHaveBeenCalledWith(mockGuide);
+  });
+
+  it('should fail to create a single guide', async () => {
+    // arrange Set up any prerequisites for the test. This includes preparing data and setting up mocks.
+    const mockHttpException: HttpException = new HttpException(
+      'Error creating guide in the database',
+      HttpStatus.INTERNAL_SERVER_ERROR,
+    );
+    const mockGuide: CreateFullGuideDto = {
+      level: Level.A1,
+      title: 'title',
+      description: 'description',
+      subDescription: 'subDescription',
+      examples: 'examples',
+      sentences: [],
+      translations: [],
+    };
+    jest.spyOn(guidesService, 'create').mockRejectedValue(mockHttpException);
+
+    // assert Check that the function behaved as expected.
+    expect(guidesController.create(mockGuide)).rejects.toThrow(
+      mockHttpException,
+    );
+    expect(guidesService.create).toHaveBeenCalledWith(mockGuide);
   });
 });

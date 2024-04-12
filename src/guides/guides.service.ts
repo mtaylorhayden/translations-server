@@ -125,7 +125,7 @@ export class GuidesService {
       console.log(error);
       throw new HttpException(
         `Error creating guide ${error.message}`,
-        HttpStatus.NOT_FOUND,
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }

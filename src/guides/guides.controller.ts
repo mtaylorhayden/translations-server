@@ -25,7 +25,7 @@ export class GuidesController {
   constructor(private readonly guidesService: GuidesService) {}
 
   // @Roles('admin')
-  @Public()
+  // @Public()
   @Post()
   create(
     @Body() createFullGuideDto: CreateFullGuideDto,
