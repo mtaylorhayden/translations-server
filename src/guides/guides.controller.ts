@@ -24,8 +24,6 @@ import { Public } from 'src/auth/decorators/public.decorator';
 export class GuidesController {
   constructor(private readonly guidesService: GuidesService) {}
 
-  // @Roles('admin')
-  // @Public()
   @Post()
   create(
     @Body() createFullGuideDto: CreateFullGuideDto,
@@ -66,7 +64,7 @@ export class GuidesController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: string): Promise<string> {
     return this.guidesService.remove(+id);
   }
 }

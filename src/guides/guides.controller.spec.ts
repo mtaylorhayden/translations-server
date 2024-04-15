@@ -228,4 +228,36 @@ describe('GuidesController', () => {
     );
     expect(guidesService.update).toHaveBeenCalledWith(110, mockGuide);
   });
+
+  it('should delete a single guide', async () => {
+    // arrange Set up any prerequisites for the test. This includes preparing data and setting up mocks.
+    const mockGuideId: string = '1';
+    const expectedMessage = `Successfully removed guide ${mockGuideId}`;
+    jest.spyOn(guidesService, 'remove').mockResolvedValue(expectedMessage);
+
+    // act Execute the function under test.
+    const result = await guidesController.remove(mockGuideId);
+
+    // assert Check that the function behaved as expected.
+    expect(result).toEqual(expectedMessage);
+    expect(guidesService.remove).toHaveBeenCalledWith(1);
+  });
+
+  it('should throw a Internal Server Error when trying to delete a single guide', async () => {
+    // arrange Set up any prerequisites for the test. This includes preparing data and setting up mocks.
+    const mockGuideId: string = '1';
+    const expectedMessage: HttpException = new HttpException(
+      `Could not delete guide with id: ${mockGuideId}`,
+      HttpStatus.INTERNAL_SERVER_ERROR,
+    );
+    jest.spyOn(guidesService, 'remove').mockRejectedValue(expectedMessage);
+
+    // act and assert Execute the function under test.
+    await expect(guidesController.remove(mockGuideId)).rejects.toThrow(
+      expectedMessage,
+    );
+
+    // assert Check that the function behaved as expected.
+    expect(guidesService.remove).toHaveBeenCalledWith(1);
+  });
 });

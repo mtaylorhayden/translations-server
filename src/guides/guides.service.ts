@@ -107,11 +107,6 @@ export class GuidesService {
         translations: guide.translations,
       };
     }
-
-    throw new HttpException(
-      `Could not find guide with id: ${id}`,
-      HttpStatus.NOT_FOUND,
-    );
   }
 
   async create(
@@ -167,9 +162,20 @@ export class GuidesService {
   }
 
   async remove(id: number): Promise<string> {
-    const guide = await this.findGuide(id);
-    await this.guideRepository.remove(guide);
-    return `Successfully removed guide ${id}`;
+    try {
+      const guide = await this.findGuide(id);
+      try {
+        await this.guideRepository.remove(guide);
+        return `Successfully removed guide ${id}`;
+      } catch (deletionError) {
+        throw new HttpException(
+          `Could not delete guide with id: ${id}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    } catch (error) {
+      throw error;
+    }
   }
 
   async findGuide(id: number): Promise<Guide> {
