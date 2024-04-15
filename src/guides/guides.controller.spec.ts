@@ -1,18 +1,21 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GuidesController } from './guides.controller';
 import { GuidesService } from './guides.service';
-import { EntityManager, Repository } from 'typeorm';
+import { EntityManager } from 'typeorm';
 import { Guide } from './entities/guide.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Translation } from 'src/translations/entities/translation.entity';
 import { Sentence } from 'src/sentences/entities/sentence.entity';
-import { GetGuideDto } from './dto/get-guide.dto';
 import { Level } from './enums/level.enum';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { CreateFullGuideDto } from './dto/create-full-guide.dto';
 import { UpdateGuideDto } from './dto/update-guide.dto';
+import { afterEach } from 'node:test';
 
 describe('GuidesController', () => {
+  // You want to ensure that the controller is handling the data from the service correctly.
+  // You need to simulate different responses from the service
+  // (e.g., success, error) to test the controller's error handling and response mapping.
   let guidesController: GuidesController;
   let guidesService: GuidesService;
 
@@ -60,6 +63,10 @@ describe('GuidesController', () => {
 
     guidesController = module.get<GuidesController>(GuidesController);
     guidesService = module.get<GuidesService>(GuidesService);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it('should be defined', () => {

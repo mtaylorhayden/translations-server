@@ -29,6 +29,8 @@ describe('AuthController', () => {
     save: jest.fn(),
   };
 
+  // The service has complex dependencies that are difficult or inefficient to instantiate in a test environment
+  // (e.g., connections to databases or external APIs).
   const mockMailerService = {
     sendEmail: jest.fn(),
   };
