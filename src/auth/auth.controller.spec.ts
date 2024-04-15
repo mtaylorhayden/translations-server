@@ -10,10 +10,6 @@ import { User } from 'src/user/entities/user.entity';
 
 describe('AuthController', () => {
   let controller: AuthController;
-  let authService: AuthService;
-  let userService: UserService;
-  let jwtService: JwtService;
-  let mailerService: MailerService;
 
   const mockTokenRepository = {
     find: jest.fn(),
