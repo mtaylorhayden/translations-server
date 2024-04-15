@@ -79,6 +79,7 @@ export class GuidesService {
           examples: guide.examples,
           sentences: guide.sentences,
           translations: guide.translations,
+          workbooks: guide.workbooks,
         }));
       } else {
         return [];
@@ -105,6 +106,7 @@ export class GuidesService {
         examples: guide.examples,
         sentences: guide.sentences,
         translations: guide.translations,
+        workbooks: guide.workbooks,
       };
     }
   }
@@ -179,17 +181,36 @@ export class GuidesService {
   }
 
   async findGuide(id: number): Promise<Guide> {
-    const guide = await this.guideRepository.findOne({
-      where: { id },
-      relations: ['translations', 'sentences'],
-    });
-
-    if (!guide) {
+    if (!Number.isSafeInteger(id)) {
       throw new HttpException(
-        `Could not find guide with id: ${id}`,
-        HttpStatus.NOT_FOUND,
+        'The ID is out of acceptable range',
+        HttpStatus.BAD_REQUEST,
       );
     }
-    return guide;
+
+    try {
+      const guide = await this.guideRepository.findOne({
+        where: { id },
+        relations: ['translations', 'sentences', 'workbooks'],
+      });
+
+      if (!guide) {
+        throw new HttpException(
+          `Could not find guide with id: ${id}`,
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      return guide;
+    } catch (error) {
+      if (error.status === HttpStatus.NOT_FOUND) {
+        // Rethrow the not found error if it is already set
+        throw error;
+      }
+      // Handling generic database errors
+      throw new HttpException(
+        'A database error occurred while retrieving the guide',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

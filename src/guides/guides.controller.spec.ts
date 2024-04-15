@@ -78,6 +78,7 @@ describe('GuidesController', () => {
         examples: 'examples',
         sentences: [],
         translations: [],
+        workbooks: [],
       },
     ];
 
@@ -113,6 +114,7 @@ describe('GuidesController', () => {
       examples: 'examples',
       sentences: [],
       translations: [],
+      workbooks: [],
     };
     jest.spyOn(guidesService, 'findOne').mockResolvedValue(mockGuide);
     // act Execute the function under test.
