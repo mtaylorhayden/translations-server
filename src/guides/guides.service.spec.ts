@@ -196,4 +196,19 @@ describe('GuidesService', () => {
     });
     expect(mockGuideRepository.remove).toHaveBeenCalledWith(guide);
   });
+
+  it('should throw an error in remove when no guide is found', async () => {
+    const guideId = 100;
+    const notFoundException = new HttpException(
+      `Could not find guide with id: ${guideId}`,
+      HttpStatus.NOT_FOUND,
+    );
+
+    jest
+      .spyOn(mockGuideRepository, 'findOne')
+      .mockRejectedValue(notFoundException);
+
+    // assert
+    await expect(service.remove(guideId)).rejects.toThrow(notFoundException);
+  });
 });
