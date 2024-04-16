@@ -7,6 +7,7 @@ import { Translation } from 'src/translations/entities/translation.entity';
 import { Sentence } from 'src/sentences/entities/sentence.entity';
 import { Level } from './enums/level.enum';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import exp from 'constants';
 
 describe('GuidesService', () => {
   let service: GuidesService;
@@ -16,6 +17,7 @@ describe('GuidesService', () => {
     findOne: jest.fn(),
     create: jest.fn(),
     save: jest.fn(),
+    remove: jest.fn(),
   };
 
   const mockTranslationRepository = {
@@ -115,7 +117,7 @@ describe('GuidesService', () => {
     );
   });
 
-  it('should complete within acceptable time', async () => {
+  it('should complete within 200ms', async () => {
     // arrange
     const guide: Guide = {
       id: 1,
@@ -160,5 +162,38 @@ describe('GuidesService', () => {
       'status',
       HttpStatus.INTERNAL_SERVER_ERROR,
     );
+  });
+
+  it('should delete a guide', async () => {
+    // arrange
+    const guide: Guide = {
+      id: 1,
+      level: Level.A1,
+      title: 'title',
+      description: 'description',
+      subDescription: 'subDescription',
+      examples: 'examples',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      isDeleted: false,
+      workbooks: [],
+      sentences: [],
+      translations: [],
+    };
+    jest.spyOn(mockGuideRepository, 'findOne').mockResolvedValue(guide);
+    jest.spyOn(mockGuideRepository, 'remove').mockResolvedValue(guide);
+
+    const mockSuccessfulMessage = `Successfully removed guide ${guide.id}`;
+
+    // act
+    const result = await service.remove(1);
+
+    // assert
+    expect(result).toEqual(mockSuccessfulMessage);
+    expect(mockGuideRepository.findOne).toHaveBeenCalledWith({
+      where: { id: 1 },
+      relations: ['translations', 'sentences', 'workbooks'],
+    });
+    expect(mockGuideRepository.remove).toHaveBeenCalledWith(guide);
   });
 });
