@@ -8,6 +8,8 @@ import { GetGuideDto } from './dto/get-guide.dto';
 import { Translation } from 'src/translations/entities/translation.entity';
 import { Sentence } from 'src/sentences/entities/sentence.entity';
 import { CreateFullGuideDto } from './dto/create-full-guide.dto';
+import { Workbook } from 'src/workbooks/entities/workbook.entity';
+import { BlankExercise } from 'src/blank-exercises/entities/blank-exercise.entity';
 
 @Injectable()
 export class GuidesService {
@@ -117,6 +119,7 @@ export class GuidesService {
     try {
       let guide = new Guide();
       Object.assign(guide, createFullGuideDto);
+
       return await this.guideRepository.save(guide);
     } catch (error) {
       console.log(error);

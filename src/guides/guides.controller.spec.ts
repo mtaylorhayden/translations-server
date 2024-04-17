@@ -156,6 +156,7 @@ describe('GuidesController', () => {
       examples: 'examples',
       sentences: [],
       translations: [],
+      workbooks: [],
     };
     jest.spyOn(guidesService, 'create').mockResolvedValue(mockGuide);
 
@@ -181,6 +182,7 @@ describe('GuidesController', () => {
       examples: 'examples',
       sentences: [],
       translations: [],
+      workbooks: [],
     };
     jest.spyOn(guidesService, 'create').mockRejectedValue(mockHttpException);
 

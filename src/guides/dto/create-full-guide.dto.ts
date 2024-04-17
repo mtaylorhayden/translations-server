@@ -2,6 +2,7 @@ import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { Sentence } from 'src/sentences/entities/sentence.entity';
 import { Translation } from 'src/translations/entities/translation.entity';
 import { Level } from '../enums/level.enum';
+import { Workbook } from 'src/workbooks/entities/workbook.entity';
 
 export class CreateFullGuideDto {
   @IsString()
@@ -31,4 +32,7 @@ export class CreateFullGuideDto {
 
   @IsNotEmpty()
   translations: Translation[];
+
+  @IsNotEmpty()
+  workbooks: Workbook[];
 }

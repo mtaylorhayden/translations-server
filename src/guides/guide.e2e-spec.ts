@@ -4,6 +4,7 @@ import * as request from 'supertest';
 import { AppModule } from '../app.module';
 import { GuidesService } from './guides.service';
 import { Level } from './enums/level.enum';
+import { CreateFullGuideDto } from './dto/create-full-guide.dto';
 
 describe('GuideController (e2e)', () => {
   let app: INestApplication;
@@ -91,5 +92,80 @@ describe('GuideController (e2e)', () => {
         expect(response.body).toEqual([]);
         expect(response.status).toBe(200);
       });
+  });
+
+  it('POST /guides should create a new guide with nested workbook relationship', async () => {
+    const createGuideDto: CreateFullGuideDto = {
+      level: Level.A1,
+      title: 'Guide to Testing',
+      description: 'A comprehensive guide to effective testing.',
+      subDescription: 'This covers unit, integration, and e2e tests.',
+      examples: 'Example content here',
+      sentences: [
+        { id: 1, aSide: 'Example A', bSide: 'Example B', guide: null },
+      ],
+      translations: [
+        {
+          id: 1,
+          englishWord: 'Test',
+          turkishInfinitive: 'Testmek',
+          turkishConjugated: 'Testedik',
+          createdAt: new Date(),
+          isDeleted: false,
+          updatedAt: new Date(),
+          guide: null,
+        },
+      ],
+      workbooks: [
+        {
+          id: 1,
+          title: 'Test Workbook',
+          description: 'Test Workbook Description',
+          workbookProgress: [],
+          guide: null,
+          isComplete: false,
+          blankExercises: [
+            {
+              id: 1,
+              exercise: 'test',
+              exerciseAnswer: 'testAnswer',
+              isComplete: false,
+              blankExerciseProgress: [],
+              workbook: null,
+            },
+          ],
+        },
+      ],
+    };
+
+    const response = await request(app.getHttpServer())
+      .post('/guides')
+      .send(createGuideDto)
+      .expect(201)
+      .expect('Content-Type', /json/);
+
+    expect(response.body).toMatchObject({
+      level: createGuideDto.level,
+      title: createGuideDto.title,
+      description: createGuideDto.description,
+      subDescription: createGuideDto.subDescription,
+      examples: createGuideDto.examples,
+      sentences: [
+        {
+          aSide: 'Example A',
+          bSide: 'Example B',
+        },
+      ],
+      translations: expect.arrayContaining([
+        expect.objectContaining({
+          englishWord: 'Test',
+        }),
+      ]),
+      workbooks: expect.arrayContaining([
+        expect.objectContaining({
+          title: 'Test Workbook',
+        }),
+      ]),
+    });
   });
 });

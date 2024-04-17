@@ -16,7 +16,7 @@ import { BlankExercisesModule } from './blank-exercises/blank-exercises.module';
 import { UserProgressModule } from './user-progress/user-progress.module';
 import { WorkbookProgressModule } from './workbook-progress/workbook-progress.module';
 import { BlankExerciseProgressModule } from './blank-exercise-progress/blank-exercise-progress.module';
-import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
+// import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
 import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
@@ -52,7 +52,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
       },
       template: {
         dir: __dirname + '/templates', // we need to make this file and use pug as a template
-        adapter: new PugAdapter(),
+        // adapter: new PugAdapter(),
         options: {
           strict: true,
         },
