@@ -1,10 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpException, HttpStatus, INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../app.module';
+import { GuidesService } from './guides.service';
+import { Level } from './enums/level.enum';
 
-describe('AppController (e2e)', () => {
+describe('GuideController (e2e)', () => {
   let app: INestApplication;
+  let guidesService: GuidesService;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -12,6 +15,7 @@ describe('AppController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    guidesService = moduleFixture.get<GuidesService>(GuidesService); // Get the instance from the module
     await app.init();
   });
 
@@ -19,14 +23,62 @@ describe('AppController (e2e)', () => {
     await app.close();
   });
 
-  it('GET /guides', () => {
+  it('GET /guides and checks result structure', () => {
+    jest.spyOn(guidesService, 'findAll').mockResolvedValue([
+      {
+        id: 1,
+        level: Level.A1,
+        title: 'Guide to Testing',
+        description: 'A comprehensive guide to effective testing.',
+        subDescription: 'This covers unit, integration, and e2e tests.',
+        examples: 'Example content here',
+        sentences: [], // Assuming Sentence is an array of some objects
+        translations: [], // Assuming Translation is an array of some objects
+        workbooks: [], // Assuming Workbook is an array of some objects
+      },
+    ]);
     return request(app.getHttpServer())
       .get('/guides')
       .expect(200)
       .expect((response) => {
         expect(Array.isArray(response.body)).toBe(true);
-        // Optionally, check for the structure of response if you know what data to expect
-        // e.g., expect(response.body[0]).toHaveProperty('id');
+        expect(response.body.length).toBeGreaterThan(0); // Ensure the array is not empty
+        const guide = response.body[0];
+        expect(guide).toHaveProperty('id');
+        expect(guide).toHaveProperty('level');
+        expect(guide).toHaveProperty('title');
+        expect(guide).toHaveProperty('description');
+        expect(guide).toHaveProperty('subDescription');
+        expect(guide).toHaveProperty('examples');
+        expect(guide).toHaveProperty('sentences');
+        expect(guide).toHaveProperty('translations');
+        expect(guide).toHaveProperty('workbooks');
+        // Optionally, you can add more detailed checks for each property
+        // For example:
+        expect(typeof guide.id).toBe('number');
+        expect(typeof guide.title).toBe('string');
+        // For arrays:
+        expect(Array.isArray(guide.sentences)).toBe(true);
+        expect(Array.isArray(guide.translations)).toBe(true);
+      });
+  });
+
+  it('GET /guides should handle server errors gracefully', () => {
+    jest.spyOn(guidesService, 'findAll').mockImplementation(() => {
+      throw new HttpException(
+        'Error finding guides in the database',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    });
+
+    return request(app.getHttpServer())
+      .get('/guides')
+      .expect(500)
+      .then((response) => {
+        expect(response.body).toEqual({
+          statusCode: 500,
+          message: 'Error finding guides in the database',
+        });
       });
   });
 });
