@@ -22,9 +22,10 @@ describe('GuideController (e2e)', () => {
 
   afterEach(async () => {
     await app.close();
+    jest.restoreAllMocks();
   });
 
-  it('GET /guides and checks result structure', () => {
+  it('GET /guides and checks result structure', async () => {
     jest.spyOn(guidesService, 'findAll').mockResolvedValue([
       {
         id: 1,
@@ -33,12 +34,31 @@ describe('GuideController (e2e)', () => {
         description: 'A comprehensive guide to effective testing.',
         subDescription: 'This covers unit, integration, and e2e tests.',
         examples: 'Example content here',
-        sentences: [], // Assuming Sentence is an array of some objects
-        translations: [], // Assuming Translation is an array of some objects
-        workbooks: [], // Assuming Workbook is an array of some objects
+        sentences: [],
+        translations: [],
+        workbooks: [
+          {
+            id: 1,
+            title: 'Test Workbook',
+            description: 'Test Workbook Description',
+            workbookProgress: [],
+            guide: null,
+            isComplete: false,
+            blankExercises: [
+              {
+                id: 1,
+                exercise: 'test',
+                exerciseAnswer: 'testAnswer',
+                isComplete: false,
+                blankExerciseProgress: [],
+                workbook: null,
+              },
+            ],
+          },
+        ],
       },
     ]);
-    return request(app.getHttpServer())
+    const response = await request(app.getHttpServer())
       .get('/guides')
       .expect(200)
       .expect((response) => {
@@ -54,14 +74,19 @@ describe('GuideController (e2e)', () => {
         expect(guide).toHaveProperty('sentences');
         expect(guide).toHaveProperty('translations');
         expect(guide).toHaveProperty('workbooks');
-        // Optionally, you can add more detailed checks for each property
-        // For example:
         expect(typeof guide.id).toBe('number');
         expect(typeof guide.title).toBe('string');
-        // For arrays:
         expect(Array.isArray(guide.sentences)).toBe(true);
         expect(Array.isArray(guide.translations)).toBe(true);
       });
+
+    expect(response.body[0]).toMatchObject({
+      workbooks: expect.arrayContaining([
+        expect.objectContaining({
+          title: 'Test Workbook',
+        }),
+      ]),
+    });
   });
 
   it('GET /guides should handle server errors gracefully', () => {
