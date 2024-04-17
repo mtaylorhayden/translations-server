@@ -81,4 +81,15 @@ describe('GuideController (e2e)', () => {
         });
       });
   });
+
+  it("GET /guides should return empty array if there's no guides in the database", () => {
+    jest.spyOn(guidesService, 'findAll').mockResolvedValue([]);
+    return request(app.getHttpServer())
+      .get('/guides')
+      .expect(200)
+      .expect((response) => {
+        expect(response.body).toEqual([]);
+        expect(response.status).toBe(200);
+      });
+  });
 });
