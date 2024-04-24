@@ -52,6 +52,9 @@ export class Guide {
   })
   sentences: Sentence[];
 
-  @OneToMany(() => Workbook, (workbook) => workbook.guide)
+  @OneToMany(() => Workbook, (workbook) => workbook.guide, {
+    cascade: true,
+    eager: true,
+  })
   workbooks: Workbook[];
 }

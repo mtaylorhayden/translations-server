@@ -8,6 +8,8 @@ import { GetGuideDto } from './dto/get-guide.dto';
 import { Translation } from 'src/translations/entities/translation.entity';
 import { Sentence } from 'src/sentences/entities/sentence.entity';
 import { CreateFullGuideDto } from './dto/create-full-guide.dto';
+import { Workbook } from 'src/workbooks/entities/workbook.entity';
+import { BlankExercise } from 'src/blank-exercises/entities/blank-exercise.entity';
 
 @Injectable()
 export class GuidesService {
@@ -79,6 +81,7 @@ export class GuidesService {
           examples: guide.examples,
           sentences: guide.sentences,
           translations: guide.translations,
+          workbooks: guide.workbooks,
         }));
       } else {
         return [];
@@ -105,13 +108,9 @@ export class GuidesService {
         examples: guide.examples,
         sentences: guide.sentences,
         translations: guide.translations,
+        workbooks: guide.workbooks,
       };
     }
-
-    throw new HttpException(
-      `Could not find guide with id: ${id}`,
-      HttpStatus.NOT_FOUND,
-    );
   }
 
   async create(
@@ -120,12 +119,13 @@ export class GuidesService {
     try {
       let guide = new Guide();
       Object.assign(guide, createFullGuideDto);
+
       return await this.guideRepository.save(guide);
     } catch (error) {
       console.log(error);
       throw new HttpException(
         `Error creating guide ${error.message}`,
-        HttpStatus.NOT_FOUND,
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
@@ -138,15 +138,7 @@ export class GuidesService {
       return await this.entityManager.transaction(
         async (transactionalEntityManager) => {
           // find the guide
-          const guide = await transactionalEntityManager.findOne(Guide, {
-            where: { id: id },
-          });
-          if (!guide) {
-            throw new HttpException(
-              `Could not find guide with id: ${id}`,
-              HttpStatus.NOT_FOUND,
-            );
-          }
+          const guide = await this.findGuide(id);
 
           // Delete the existing sentences
           if (updateGuideDto?.sentences?.length > 0) {
@@ -166,6 +158,7 @@ export class GuidesService {
         },
       );
     } catch (error) {
+      // if (error inst)
       throw new HttpException(
         `Could not update guide with id: ${id}`,
         HttpStatus.BAD_REQUEST,
@@ -174,23 +167,53 @@ export class GuidesService {
   }
 
   async remove(id: number): Promise<string> {
-    const guide = await this.findGuide(id);
-    await this.guideRepository.remove(guide);
-    return `Successfully removed guide ${id}`;
+    try {
+      const guide = await this.findGuide(id);
+      try {
+        await this.guideRepository.remove(guide);
+        return `Successfully removed guide ${id}`;
+      } catch (deletionError) {
+        throw new HttpException(
+          `Could not delete guide with id: ${id}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    } catch (error) {
+      throw error;
+    }
   }
 
   async findGuide(id: number): Promise<Guide> {
-    const guide = await this.guideRepository.findOne({
-      where: { id },
-      relations: ['translations', 'sentences'],
-    });
-
-    if (!guide) {
+    if (!Number.isSafeInteger(id)) {
       throw new HttpException(
-        `Could not find guide with id: ${id}`,
-        HttpStatus.NOT_FOUND,
+        'The ID is out of acceptable range',
+        HttpStatus.BAD_REQUEST,
       );
     }
-    return guide;
+
+    try {
+      const guide = await this.guideRepository.findOne({
+        where: { id },
+        relations: ['translations', 'sentences', 'workbooks'],
+      });
+
+      if (!guide) {
+        throw new HttpException(
+          `Could not find guide with id: ${id}`,
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      return guide;
+    } catch (error) {
+      if (error.status === HttpStatus.NOT_FOUND) {
+        // Rethrow the not found error if it is already set
+        throw error;
+      }
+      // Handling generic database errors
+      throw new HttpException(
+        'A database error occurred while retrieving the guide',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

@@ -1,5 +1,6 @@
 import { Optional } from '@nestjs/common';
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { Level } from '../enums/level.enum';
 
 export class CreateGuideDto {
   @IsString()
@@ -17,4 +18,8 @@ export class CreateGuideDto {
   @IsString()
   @IsOptional()
   subDescription?: string;
+
+  @IsEnum(Level)
+  @IsOptional()
+  level: string;
 }
